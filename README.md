@@ -18,10 +18,10 @@
 
 ## העלאה ל־GitHub Pages (פעם אחת, כ־5 דקות)
 
-1. ב־GitHub: **New repository** בשם `Koko`, ציבורי.
+1. ב־GitHub: **New repository** בשם `koko`, ציבורי.
 2. **Add file ← Upload files** וגררו את כל התוכן של התיקייה הזאת (כולל התיקיות `icons` ו־`fonts`). **Commit changes**.
 3. **Settings ← Pages ← Source: Deploy from a branch ← Branch: main / (root) ← Save.**
-4. אחרי דקה־שתיים המשחק יהיה בכתובת: `https://stasikboss.github.io/Koko/`
+4. אחרי דקה־שתיים המשחק יהיה בכתובת: `https://stasikboss.github.io/koko/`
 
 אם בחרתם שם אחר למאגר, עדכנו את הכתובת בשורה `og:image` שב־`index.html`, כדי שהתמונה תופיע כשמשתפים את הקישור.
 
