@@ -1,5 +1,5 @@
 /* Koko the Parrot: offline cache. Bump VERSION whenever you change any file. */
-const VERSION = 'koko-v1.0';
+const VERSION = 'koko-v1.1';
 const ASSETS = [
   './',
   './index.html',
@@ -33,7 +33,18 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
-  if (new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  // The voice-pack list changes when a new voice is generated: network first, cache as fallback.
+  if (url.pathname.endsWith('/audio/manifest.json')) {
+    event.respondWith(
+      fetch(req).then(res => {
+        if (res && res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
+        return res;
+      }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || Response.error()))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(req, { ignoreSearch: true }).then(hit => {
       if (hit) return hit;

@@ -267,6 +267,7 @@ button{font:inherit;color:inherit}
 .field label{font-weight:700;font-size:15px}
 .field input[type=text]{font:inherit;font-size:17px;padding:10px 12px;border-radius:12px;border:2px solid var(--edge);background:var(--card);color:var(--ink);width:100%}
 .field input[type=range]{width:100%;accent-color:var(--sun)}
+.field select{font:inherit;font-size:16px;padding:9px 10px;border-radius:12px;border:2px solid var(--edge);background:var(--card);color:var(--ink);width:100%}
 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .btn{border:2px solid var(--edge);background:var(--card);border-radius:12px;padding:8px 14px;font-size:15px;cursor:pointer;font-family:var(--body)}
 .btn.primary{background:var(--sun);border-color:var(--sun-deep);color:#3A1E00;font-weight:700}
@@ -379,21 +380,31 @@ button{font:inherit;color:inherit}
 
       <h3>קוקו מדבר</h3>
       <div class="field">
-        <label for="childName">שם הילד (קוקו יגיד שלום בקול המכשיר)</label>
+        <label for="childName">שם הילד (קוקו יגיד לו שלום)</label>
         <input type="text" id="childName" maxlength="20" autocomplete="off" placeholder="למשל: נועה">
       </div>
+      <p class="status" id="voiceStatus" style="margin-top:10px"></p>
+      <div class="field" id="voiceField" hidden>
+        <label for="voiceSel">קול המכשיר</label>
+        <select id="voiceSel"></select>
+      </div>
       <div class="field">
-        <label for="rate">קצב הדיבור</label>
+        <label for="rate">קצב הדיבור של קול המכשיר</label>
         <input type="range" id="rate" min="0.6" max="1.2" step="0.05">
       </div>
       <div class="row" style="margin-top:8px">
         <button class="btn" id="testVoice" type="button">השמיעו דוגמה</button>
-        <span class="status" id="voiceStatus"></span>
+      </div>
+      <div id="voiceTips" class="muted" style="margin-top:10px" hidden>
+        <p class="muted">קול המכשיר הבסיסי נשמע רובוטי. קול משופר נשמע הרבה יותר טבעי, וההורדה חינמית:</p>
+        <p class="muted" style="margin-top:4px"><b>אייפון:</b> Settings › Accessibility › Spoken Content › Voices › Hebrew › Carmit › Enhanced. אחרי ההורדה בחרו אותו כאן.</p>
+        <p class="muted" style="margin-top:4px"><b>אנדרואיד:</b> הגדרות › הקראת טקסט (Text-to-speech) › מנוע: Speech Services by Google, והתקינו את הקול העברי.</p>
+        <p class="muted" style="margin-top:4px">והכי טוב: הקליטו את המשפטים בקול שלכם, למטה.</p>
       </div>
 
       <h3>הקול שלכם</h3>
       <div id="recArea">
-        <p>אפשר להקליט כל משפט של קוקו בקול שלכם. משפט שלא הוקלט יוקרא בקול המכשיר. כל הקלטה עד 8 שניות.</p>
+        <p>אפשר להקליט כל משפט של קוקו בקול שלכם. משפט שלא הוקלט יושמע בקול הרגיל של קוקו. כל הקלטה עד 8 שניות, והשקט בהתחלה ובסוף נחתך לבד.</p>
         <p class="status" id="recMsg" role="status"></p>
         <div id="recList"></div>
       </div>
@@ -408,7 +419,7 @@ button{font:inherit;color:inherit}
         <p>אנדרואיד, בכרום: תפריט ⋮ ← "הוספה למסך הבית".</p>
         <p class="muted" style="margin-top:6px">אחרי ההתקנה המשחק עובד גם בלי אינטרנט.</p>
       </div>
-      <p class="muted" style="margin-top:22px">קוקו התוכי · נבנה בקהילת אבא AI · גרסה 1.0</p>
+      <p class="muted" style="margin-top:22px">קוקו התוכי · נבנה בקהילת אבא AI · גרסה 1.1</p>
     </div>
   </div>
 </div>
@@ -685,6 +696,16 @@ const LINES = {
   end: 'אני עייף... לילה טוב!'
 };
 
+// How a voice should pronounce lines whose bubble text uses playful spelling (used for device voices and the audio pack).
+const SPOKEN = {
+  i1_say: 'הכלב עושה... מוּ!', i1_ask: 'רגע... מי עושה מוּ?', i1_yes: 'נכון! הפרה עושה מוּ! והכלב עושה, הַב הַב!',
+  i2_say: 'החתול עושה... גַּע גַּע!', i2_ask: 'מי עושה גַּע גַּע?', i2_yes: 'נכון! הברווז עושה גַּע גַּע! והחתול עושה, מְיָאוּ!',
+  i3_say: 'הכבשה עושה... מְיָאוּ!', i3_ask: 'מי עושה מְיָאוּ?', i3_yes: 'נכון! החתול עושה מְיָאוּ! והכבשה עושה, מֶה!',
+  i8_yes: 'נכון! שותים מכוס! גְּלוּג, גְּלוּג!',
+  i9_yes: 'נכון! אוכלים מרק עם כַּף! יַאמִי!',
+  oops: 'אֶמ... לא נראה לי.'
+};
+
 const MISSIONS = [
   { title: 'עכשיו אתם קוקו', text: 'תגידו לילד "הכלב עושה מיאו!" ותנו לו לתקן אתכם. אחר כך מתחלפים: הוא קוקו, ואתם מתקנים.' },
   { title: 'מתלבשים הפוך', text: 'הביאו גרב, כובע ונעל. שימו אותם במקום הלא נכון, ותנו לילד לסדר אותם כמו שצריך.' },
@@ -705,14 +726,16 @@ function lineList() {
   out.push({ id: 'oops', text: LINES.oops, group: 'סיום ותגובות' });
   out.push({ id: 'bye', text: LINES.bye, group: 'סיום ותגובות' });
   out.push({ id: 'end', text: LINES.end, group: 'סיום ותגובות' });
+  out.forEach(l => { l.spoken = SPOKEN[l.id] || l.text; });
   return out;
 }
 
 /* ---------- state ---------- */
 const S = {
   token: 0, accepting: false, onPick: null, cancelWait: null, stopCurrent: null,
-  recs: new Map(), heVoice: null, voiceCount: 0, ttsBroken: 0,
-  rate: Number(store.get('rate', 0.9)) || 0.9, name: String(store.get('name', '') || ''),
+  recs: new Map(), heVoice: null, heVoices: [], voiceCount: 0, ttsBroken: 0,
+  voiceURI: String(store.get('voice', '') || ''),
+  rate: Number(store.get('rate', 0.92)) || 0.92, name: String(store.get('name', '') || ''),
   startedAt: 0, done: 0, wake: null
 };
 
@@ -815,14 +838,31 @@ function show(name) { ['start', 'game', 'end'].forEach(n => { $('#screen-' + n).
 const alive = tok => tok === S.token;
 
 /* ---------- voice ---------- */
+// Rank device voices: enhanced / premium / neural / network voices sound far better than the default compact ones.
+function voiceScore(v) {
+  const n = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+  let s = 0;
+  if (/premium/.test(n)) s += 60;
+  if (/enhanced|neural|natural|wavenet|online|siri/.test(n)) s += 50;
+  if (/google/.test(n)) s += 30;
+  if (v.localService === false) s += 10;
+  if (/compact|espeak|eloquence/.test(n)) s -= 40;
+  return s;
+}
+function chooseVoice() {
+  const list = S.heVoices;
+  S.heVoice = list.find(v => v.voiceURI === S.voiceURI) || list[0] || null;
+}
 function initVoices() {
   if (!('speechSynthesis' in window)) { updateVoiceStatus(); return; }
   const pick = () => {
     let vs = [];
     try { vs = window.speechSynthesis.getVoices() || []; } catch (e) {}
     S.voiceCount = vs.length;
-    S.heVoice = vs.find(v => /^(he|iw)([-_]|$)/i.test(v.lang)) || null;
+    S.heVoices = vs.filter(v => /^(he|iw)([-_]|$)/i.test(v.lang)).sort((a, b) => voiceScore(b) - voiceScore(a));
+    chooseVoice();
     updateVoiceStatus();
+    if (!$('#sheet').hidden) renderVoiceSelect();
   };
   pick();
   try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
@@ -848,7 +888,7 @@ function speakTTS(text) {
     };
     const u = new SpeechSynthesisUtterance(ttsText(text));
     u.lang = 'he-IL'; if (S.heVoice) u.voice = S.heVoice;
-    u.rate = S.rate; u.pitch = 1.3;
+    u.rate = S.rate; u.pitch = 1;
     u.onstart = () => { started = true; S.ttsBroken = 0; };
     u.onend = () => { if (fellBack) return; if (started || Date.now() - t0 > est * 0.3) finish(); else fallback(); };
     u.onerror = e => {
@@ -875,18 +915,113 @@ function playBlob(blob) {
   });
 }
 
+/* ---------- audio engine: recordings and the voice pack play through Web Audio ----------
+   One AudioContext, unlocked by the Play tap, so every later line plays without another gesture (iOS),
+   plays even with the ring switch on silent (audioSession), and evens out loudness (compressor + per-clip gain). */
+const AE = {
+  ctx: null, out: null, buffers: new Map(),
+  supported() { return !!(window.AudioContext || window.webkitAudioContext); },
+  unlock() {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    if (!this.supported()) return;
+    try {
+      if (!this.ctx) {
+        const C = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new C();
+        const comp = this.ctx.createDynamicsCompressor();
+        comp.threshold.value = -22; comp.knee.value = 14; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.25;
+        comp.connect(this.ctx.destination);
+        this.out = comp;
+      }
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      const b = this.ctx.createBuffer(1, 1, 22050), src = this.ctx.createBufferSource();
+      src.buffer = b; src.connect(this.ctx.destination); src.start(0);
+    } catch (e) {}
+  },
+  decode(ab) {
+    return new Promise((res, rej) => {
+      try { const p = this.ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); } catch (e) { rej(e); }
+    });
+  },
+  // Trim silence at both ends and work out a gain that brings the clip to a steady level.
+  analyse(buf) {
+    const d = buf.getChannelData(0), n = d.length, sr = buf.sampleRate, th = 0.02;
+    let a = 0, z = n - 1, peak = 0;
+    while (a < n && Math.abs(d[a]) < th) a++;
+    while (z > a && Math.abs(d[z]) < th) z--;
+    for (let i = a; i <= z; i += 4) { const v = Math.abs(d[i]); if (v > peak) peak = v; }
+    if (a >= z) { a = 0; z = n - 1; }
+    return { start: Math.max(0, a / sr - 0.06), end: Math.min(buf.duration, z / sr + 0.15), gain: peak > 0.001 ? Math.min(4, 0.85 / peak) : 1 };
+  },
+  get(key, loader) {
+    if (!this.buffers.has(key)) {
+      const pr = loader().then(ab => this.decode(ab)).then(buf => Object.assign({ buf }, this.analyse(buf)));
+      pr.catch(() => this.buffers.delete(key));
+      this.buffers.set(key, pr);
+    }
+    return this.buffers.get(key);
+  },
+  play(entry) {
+    return new Promise(resolve => {
+      let done = false, guard = null;
+      const src = this.ctx.createBufferSource(), g = this.ctx.createGain();
+      src.buffer = entry.buf; g.gain.value = entry.gain;
+      src.connect(g); g.connect(this.out);
+      const finish = () => { if (done) return; done = true; clearTimeout(guard); if (S.stopCurrent === stop) S.stopCurrent = null; resolve(); };
+      const stop = () => { try { src.stop(); } catch (e) {} finish(); };
+      src.onended = finish;
+      S.stopCurrent = stop;
+      const dur = Math.max(0.05, entry.end - entry.start);
+      guard = setTimeout(finish, dur * 1000 + 1500);
+      try { if (this.ctx.state === 'suspended') this.ctx.resume(); src.start(0, entry.start, dur); } catch (e) { finish(); }
+    });
+  }
+};
+function blobToArrayBuffer(blob) {
+  if (blob.arrayBuffer) return blob.arrayBuffer();
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(blob); });
+}
+
+// Optional studio voice pack: audio/manifest.json + one file per line (see tools/make_audio.py).
+const PACK = { files: null, voice: '' };
+async function loadPack() {
+  if (EMBED) return;
+  try {
+    const r = await fetch('audio/manifest.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const m = await r.json();
+    if (m && m.files && Object.keys(m.files).length) { PACK.files = m.files; PACK.voice = m.voice || ''; }
+  } catch (e) {}
+  updateVoiceStatus();
+}
+function packEntry(id) {
+  return AE.get('pack:' + id, () => fetch('audio/' + PACK.files[id]).then(r => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); }));
+}
+async function preloadPack() {
+  if (!PACK.files || !AE.ctx) return;
+  for (const id of Object.keys(PACK.files)) { try { await packEntry(id); } catch (e) {} }
+}
+
+function speakOrWait(spoken, text) { return ttsUsable() ? speakTTS(spoken) : wait(estimate(text)); }
+function primeTTS() {   // iOS only lets the page speak later if it spoke once inside the tap
+  try { if (!('speechSynthesis' in window)) return; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'he-IL'; window.speechSynthesis.speak(u); } catch (e) {}
+}
+
 function say(id, text, opts = {}) {
   const k = opts.koko || K.game;
   const bubble = opts.bubble || $('#bubble');
   const tok = S.token;
   bubble.textContent = text;
   k.classList.add('talking');
+  const spoken = opts.tts || SPOKEN[id] || text;
+  const fallback = () => (alive(tok) ? speakOrWait(spoken, text) : null);
   let p;
   const rec = S.recs.get(id);
-  if (rec) p = playBlob(rec);
-  else if (ttsUsable()) p = speakTTS(opts.tts || text);
-  else p = wait(estimate(text));
-  return p.catch(() => {}).then(() => { if (alive(tok)) k.classList.remove('talking'); });
+  if (rec && AE.ctx) p = AE.get('rec:' + id, () => blobToArrayBuffer(rec)).then(e => alive(tok) && AE.play(e), () => alive(tok) && playBlob(rec));
+  else if (rec) p = playBlob(rec);
+  else if (PACK.files && PACK.files[id] && AE.ctx) p = packEntry(id).then(e => alive(tok) && AE.play(e), fallback);
+  else p = speakOrWait(spoken, text);
+  return Promise.resolve(p).catch(() => {}).then(() => { if (alive(tok)) k.classList.remove('talking'); });
 }
 function stopAll() {
   S.token++;
@@ -1014,7 +1149,9 @@ async function startSession() {
   $('#bubble').textContent = '';
   setMood(K.game, 'idle');
   show('game');
+  AE.unlock(); primeTTS();
   requestWake();
+  preloadPack();
   await say('greet', greetText());          // first speech starts inside the tap, so iOS allows audio
   if (!alive(tok)) return;
   for (const round of ROUNDS) {
@@ -1127,7 +1264,7 @@ const Rec = {
   async start(id) {
     if (this.mr) this.stop();
     recMsg('');
-    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } }); }
     catch (e) { recMsg('אין גישה למיקרופון. אשרו גישה למיקרופון בהגדרות הדפדפן ונסו שוב.', true); return; }
     let mr;
     try { mr = new MediaRecorder(this.stream); }
@@ -1141,7 +1278,7 @@ const Rec = {
       try { this.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
       const rid = this.id; this.mr = null; this.id = null; this.stream = null;
       if (blob.size > 0) {
-        S.recs.set(rid, blob);
+        S.recs.set(rid, blob); AE.buffers.delete('rec:' + rid);
         try { await idb.put(rid, { buf: await blob.arrayBuffer(), type }); recMsg('נשמר.'); }
         catch (e) { recMsg('ההקלטה תעבוד עד שתסגרו את המשחק, אבל לא נשמרה במכשיר.', true); }
       }
@@ -1173,20 +1310,33 @@ $('#recList').addEventListener('click', async e => {
   const act = b.dataset.act;
   if (act === 'rec') { if (Rec.id === id) Rec.stop(); else Rec.start(id); }
   else if (act === 'play') { const blob = S.recs.get(id); if (blob) { if (S.stopCurrent) S.stopCurrent(); playBlob(blob); } }
-  else if (act === 'del') { S.recs.delete(id); try { await idb.del(id); } catch (err) {} recMsg('ההקלטה נמחקה.'); renderRecList(); updateVoiceStatus(); }
+  else if (act === 'del') { S.recs.delete(id); AE.buffers.delete('rec:' + id); try { await idb.del(id); } catch (err) {} recMsg('ההקלטה נמחקה.'); renderRecList(); updateVoiceStatus(); }
 });
 
 /* ---------- parent sheet ---------- */
 function updateVoiceStatus() {
   const st = $('#voiceStatus');
   const note = $('#voiceNote');
-  const noVoice = !('speechSynthesis' in window) || knownNoHebrew();
-  if (!('speechSynthesis' in window)) st.textContent = 'בדפדפן הזה אין הקראה. קוקו יכתוב בבועה.';
-  else if (S.heVoice) st.textContent = `קול עברי במכשיר: ${S.heVoice.name}`;
-  else if (S.voiceCount > 0) st.textContent = 'לא נמצא קול עברי במכשיר. קוקו יכתוב בבועה, ואפשר להקליט את הקול שלכם.';
-  else st.textContent = 'קוקו ינסה לדבר בקול המכשיר.';
-  st.classList.toggle('warn', noVoice);
-  note.hidden = !(noVoice && S.recs.size === 0);
+  const hasTTS = 'speechSynthesis' in window;
+  const noVoice = !hasTTS || knownNoHebrew();
+  let msg;
+  if (PACK.files) msg = 'קוקו מדבר בקול מוקלט באיכות גבוהה. קול המכשיר משמש רק כגיבוי.';
+  else if (!hasTTS) msg = 'בדפדפן הזה אין הקראה. קוקו יכתוב בבועה.';
+  else if (S.heVoice) msg = `קוקו מדבר בקול המכשיר: ${S.heVoice.name}`;
+  else if (S.voiceCount > 0) msg = 'לא נמצא קול עברי במכשיר. קוקו יכתוב בבועה, ואפשר להקליט את הקול שלכם.';
+  else msg = 'קוקו ינסה לדבר בקול המכשיר.';
+  st.textContent = msg;
+  st.classList.toggle('warn', noVoice && !PACK.files);
+  note.hidden = !(noVoice && S.recs.size === 0 && !PACK.files);
+  const weak = !PACK.files && (noVoice || !S.heVoice || voiceScore(S.heVoice) < 30);
+  $('#voiceTips').hidden = !weak;
+}
+function renderVoiceSelect() {
+  const sel = $('#voiceSel');
+  const list = S.heVoices;
+  $('#voiceField').hidden = list.length === 0;
+  sel.innerHTML = list.map((v, i) => `<option value="${esc(v.voiceURI)}">${esc(v.name)}${i === 0 ? ' (מומלץ)' : ''}</option>`).join('');
+  if (S.heVoice) sel.value = S.heVoice.voiceURI;
 }
 function openSheet() {
   stopAll();
@@ -1197,6 +1347,7 @@ function openSheet() {
   if (!EMBED && !Rec.supported()) $('#recEmbedNote').textContent = 'הדפדפן הזה לא תומך בהקלטת קול. קוקו ידבר בקול המכשיר.';
   $('#installTip').hidden = EMBED;
   if (!EMBED && Rec.supported()) renderRecList();
+  renderVoiceSelect();
   updateVoiceStatus();
   $('#sheet').hidden = false;
   $('#sheetClose').focus();
@@ -1206,8 +1357,9 @@ $('#sheetClose').addEventListener('click', closeSheet);
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
 $('#childName').addEventListener('input', e => { S.name = e.target.value.trim().slice(0, 20); store.set('name', S.name); });
-$('#rate').addEventListener('input', e => { S.rate = Number(e.target.value) || 0.9; store.set('rate', S.rate); });
-$('#testVoice').addEventListener('click', () => { stopAll(); say('greet', greetText(), { koko: K.start, bubble: document.createElement('div') }); });
+$('#rate').addEventListener('input', e => { S.rate = Number(e.target.value) || 0.92; store.set('rate', S.rate); });
+$('#voiceSel').addEventListener('change', e => { S.voiceURI = e.target.value; store.set('voice', S.voiceURI); S.ttsBroken = 0; chooseVoice(); updateVoiceStatus(); });
+$('#testVoice').addEventListener('click', () => { stopAll(); AE.unlock(); primeTTS(); say('greet', greetText(), { koko: K.start, bubble: document.createElement('div') }); });
 
 /* ---------- wiring ---------- */
 $('#playBtn').addEventListener('click', () => startSession());
@@ -1226,13 +1378,14 @@ document.addEventListener('visibilitychange', () => {
 initVoices();
 renderProgress();
 loadRecordings();
+loadPack();
 updateVoiceStatus();
 
 if (!EMBED && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 
-window.__koko = { markup: kokoMarkup, ROUNDS, S, show, setScene, setMood, K };
+window.__koko = { markup: kokoMarkup, ROUNDS, S, show, setScene, setMood, K, lineList, AE, PACK, voiceScore };
 })();
 </script>
 </body>

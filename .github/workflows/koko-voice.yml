@@ -1,0 +1,52 @@
+name: Koko voice
+
+# Actions › Koko voice › Run workflow. Needs the repo secret GOOGLE_TTS_API_KEY
+# (Settings › Secrets and variables › Actions › New repository secret).
+on:
+  workflow_dispatch:
+    inputs:
+      voice:
+        description: 'Google TTS Hebrew voice (run with "list" to see them in the log)'
+        required: true
+        default: 'he-IL-Wavenet-D'
+      rate:
+        description: 'Speaking rate'
+        required: true
+        default: '0.95'
+
+permissions:
+  contents: write
+
+jobs:
+  voice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: List voices
+        if: ${{ inputs.voice == 'list' }}
+        env:
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: python3 tools/make_audio.py --list
+      - name: Generate the voice pack
+        if: ${{ inputs.voice != 'list' }}
+        env:
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          VOICE: ${{ inputs.voice }}
+          RATE: ${{ inputs.rate }}
+        run: python3 tools/make_audio.py --voice "$VOICE" --rate "$RATE"
+      - name: Commit
+        if: ${{ inputs.voice != 'list' }}
+        env:
+          VOICE: ${{ inputs.voice }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audio
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Koko voice pack: $VOICE"
+          git push
