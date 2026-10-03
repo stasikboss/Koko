@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<!--HEAD-META-START-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<!--HEAD-META-END-->
+<title>קוקו התוכי</title>
+<!--PWA-START-->
+<meta name="description" content="קוקו מתבלבל, אתם מתקנים. משחק להורה וילד בגילאי 2–3, בלי פרסומות ובלי איסוף מידע.">
+<meta name="theme-color" content="#CFEFF7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="קוקו">
+<meta property="og:type" content="website">
+<meta property="og:title" content="קוקו התוכי">
+<meta property="og:description" content="קוקו מתבלבל, אתם מתקנים. משחק להורה וילד בגילאי 2–3, בלי פרסומות.">
+<meta property="og:image" content="https://stasikboss.github.io/koko/og.png">
+<!--PWA-END-->
+<style>
+/* Self-hosted fonts (SIL OFL): no requests leave the device. */
+@font-face{font-family:"Fredoka";font-weight:500;font-display:swap;src:url(fonts/fredoka-hebrew-500-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Fredoka";font-weight:600;font-display:swap;src:url(fonts/fredoka-hebrew-600-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Fredoka";font-weight:700;font-display:swap;src:url(fonts/fredoka-hebrew-700-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Fredoka";font-weight:500;font-display:swap;src:url(fonts/fredoka-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2011-206F,U+20AC,U+2122,U+2190-2193,U+2212}
+@font-face{font-family:"Fredoka";font-weight:600;font-display:swap;src:url(fonts/fredoka-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2011-206F,U+20AC,U+2122,U+2190-2193,U+2212}
+@font-face{font-family:"Fredoka";font-weight:700;font-display:swap;src:url(fonts/fredoka-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2011-206F,U+20AC,U+2122,U+2190-2193,U+2212}
+@font-face{font-family:"Varela Round";font-weight:400;font-display:swap;src:url(fonts/varela-round-hebrew-400-normal.woff2) format("woff2");unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:"Varela Round";font-weight:400;font-display:swap;src:url(fonts/varela-round-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2011-206F,U+20AC,U+2122,U+2190-2193,U+2212}
+</style>
+<style>
+/* Layout: a morning-sky perch. Koko stands center stage on a branch; two big picture cards wait on the "table" below. */
+:root{
+  --sky:#CFEFF7;
+  --sky-2:#F3FAF1;
+  --ink:#17383F;
+  --ink-soft:#4C6A70;
+  --card:#FFFFFF;
+  --edge:#C3E1E6;
+  --leaf:#2DB36F;
+  --leaf-deep:#1C8B53;
+  --sun:#FF9F1C;
+  --sun-deep:#DD7D0A;
+  --berry:#F2545B;
+  --gold:#FFC93C;
+  --sky-blue:#3A86FF;
+  --cream:#FFF8E8;
+  --scrim:rgba(23,56,63,.38);
+  --display:"Fredoka","Varela Round","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Varela Round","Rubik","Arial",system-ui,sans-serif;
+  color-scheme: light;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--sky-2) linear-gradient(180deg,var(--sky) 0%,var(--sky-2) 72%);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  overflow:hidden;
+  touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--sky-blue);outline-offset:3px}
+
+#app{
+  position:fixed;inset:0;
+  padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+}
+.screen{position:relative;height:100%;width:100%}
+.deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+.deco svg{position:absolute}
+.deco .sun{top:-60px;inset-inline-start:-50px;width:220px;height:220px}
+.deco .leaf-a{bottom:-30px;inset-inline-end:-40px;width:230px;opacity:.9}
+.deco .leaf-b{bottom:-40px;inset-inline-start:-50px;width:200px;opacity:.75}
+
+/* ---------- Koko ---------- */
+.koko{display:block;overflow:visible}
+.koko .bird{transform-box:view-box;transform-origin:150px 330px}
+.koko .head{transform-box:view-box;transform-origin:150px 190px;transition:transform .35s ease}
+.koko .eyes,.koko .beak-open,.koko .zzz{display:none}
+.koko[data-mood="idle"] .eyes-open,
+.koko[data-mood="happy"] .eyes-happy,
+.koko[data-mood="sleep"] .eyes-closed,
+.koko[data-mood="confused"] .eyes-confused,
+.koko[data-mood="wow"] .eyes-wow{display:inline}
+.koko.blink[data-mood="idle"] .eyes-open{display:none}
+.koko.blink[data-mood="idle"] .eyes-closed{display:inline}
+.koko[data-mood="confused"] .head{transform:rotate(-9deg)}
+.koko[data-mood="wow"] .head{transform:translateY(-6px)}
+.koko .qmarks{opacity:0;transition:opacity .3s}
+.koko[data-mood="confused"] .qmarks{opacity:1}
+.koko[data-mood="sleep"] .zzz{display:inline}
+.koko[data-mood="sleep"] .head{transform:rotate(7deg) translateY(6px)}
+.koko.talking .beak-open{display:inline;animation:talkA .3s step-end infinite}
+.koko.talking .beak-closed{animation:talkB .3s step-end infinite}
+@keyframes talkA{0%{opacity:1}50%{opacity:0}100%{opacity:0}}
+@keyframes talkB{0%{opacity:0}50%{opacity:1}100%{opacity:1}}
+.koko[data-mood="happy"] .bird{animation:hop .55s ease}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-18px)}}
+.bob .bird{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.koko .zzz text{animation:zz 2.4s ease-in-out infinite}
+.koko .zzz text:nth-child(2){animation-delay:.4s}
+.koko .zzz text:nth-child(3){animation-delay:.8s}
+@keyframes zz{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* ---------- Start ---------- */
+.start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.6vh,18px);text-align:center}
+.start .koko-slot{height:min(40vh,70vw);aspect-ratio:360/430}
+.title{margin:0;font-family:var(--display);font-weight:700;line-height:.95;font-size:clamp(44px,10vmin,84px);text-wrap:balance}
+.title .t1{color:var(--leaf-deep)}
+.title .t2{font-weight:600;font-size:.62em;display:block;margin-top:.12em}
+.tag{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(19px,3.8vmin,28px);color:var(--ink-soft)}
+.play{
+  width:clamp(100px,19vmin,140px);aspect-ratio:1;border-radius:50%;border:0;cursor:pointer;
+  background:var(--sun);display:grid;place-items:center;
+  box-shadow:0 9px 0 var(--sun-deep),0 18px 34px rgba(221,125,10,.32);
+  transition:transform .12s ease,box-shadow .12s ease;margin-top:clamp(4px,1vh,12px)
+}
+.play:active{transform:translateY(7px);box-shadow:0 2px 0 var(--sun-deep),0 8px 18px rgba(221,125,10,.3)}
+.play svg{width:46%;height:46%;margin-inline-end:-6%}
+.meta{margin:clamp(6px,1.5vh,16px) 0 0;font-size:15px;color:var(--ink-soft);display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px}
+.meta span{white-space:nowrap}
+.voice-note{margin:0;font-size:14px;color:var(--sun-deep);max-width:34em}
+
+/* corner buttons */
+.corner{position:absolute;top:0;inset-inline-end:0;z-index:3}
+.hold{
+  width:52px;height:52px;border-radius:50%;border:0;background:rgba(255,255,255,.7);
+  display:grid;place-items:center;cursor:pointer;color:var(--ink-soft)
+}
+.hold:not(.corner){position:relative}
+.hold .ico{width:24px;height:24px}
+.hold .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.hold .ring circle{fill:none;stroke:var(--sun);stroke-width:4;stroke-linecap:round;stroke-dasharray:132;stroke-dashoffset:132}
+.hold.holding .ring circle{transition:stroke-dashoffset 1.2s linear;stroke-dashoffset:0}
+.hold-hint{position:absolute;top:58px;inset-inline-end:0;font-size:12px;color:var(--ink-soft);white-space:nowrap;opacity:0;transition:opacity .2s;z-index:3}
+.hold.holding + .hold-hint{opacity:1}
+
+/* ---------- Game ---------- */
+.game{
+  --optw:min(40vw,26vh,250px);
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(6px,1.4vh,14px)
+}
+.topbar{display:flex;align-items:center;gap:10px;min-height:52px;padding-inline-end:58px}
+.progress{display:flex;gap:1px;min-width:0}
+.feather{width:20px;height:20px;color:#fff;flex:none}
+.feather.done:nth-child(4n+1){color:var(--leaf)}
+.feather.done:nth-child(4n+2){color:var(--berry)}
+.feather.done:nth-child(4n+3){color:var(--gold)}
+.feather.done:nth-child(4n+4){color:var(--sky-blue)}
+.feather.done{animation:pop .45s ease}
+.chip{
+  display:flex;align-items:center;gap:8px;margin-inline-start:auto;
+  background:var(--card);border:2px solid var(--edge);border-radius:999px;
+  padding:3px 14px 3px 8px;font-family:var(--display);font-weight:600;font-size:19px
+}
+.chip svg{width:30px;height:30px}
+@media (max-width:389px){.chip span{display:none}.chip{padding:3px 8px}.feather{width:18px;height:18px}}
+.stage{display:flex;flex-direction:column;align-items:center;min-height:0;gap:clamp(4px,1vh,10px)}
+.bubble{
+  position:relative;z-index:2;background:var(--card);border-radius:26px;
+  padding:.38em .95em;max-width:min(94%,660px);min-height:1.9em;
+  font-family:var(--display);font-weight:600;font-size:clamp(20px,4.3vmin,34px);line-height:1.25;text-align:center;
+  box-shadow:0 5px 0 var(--edge);text-wrap:balance
+}
+.bubble::after{
+  content:"";position:absolute;bottom:-14px;left:50%;margin-left:-14px;
+  border-width:16px 14px 0;border-style:solid;border-color:var(--card) transparent transparent
+}
+.bubble:empty{visibility:hidden}
+.scene{flex:1;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:2vw}
+.scene .koko-slot{height:100%;max-height:46vh;aspect-ratio:360/430;max-width:64vw;flex:none}
+.koko-slot .koko{width:100%;height:100%}
+.scene.duo .koko-slot{max-width:56vw}
+.companion{
+  align-self:center;width:min(34vw,22vh);height:auto;aspect-ratio:1;flex:none;
+  background:var(--cream);border:4px solid var(--edge);border-radius:50%;display:grid;place-items:center;padding:6%
+}
+.companion svg{width:100%;height:100%}
+.companion.pop{animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+.options{
+  display:flex;justify-content:center;align-items:center;gap:clamp(14px,6vw,44px);
+  min-height:calc(var(--optw) * 1.12 + 10px);padding-bottom:4px
+}
+.options.off{visibility:hidden}
+.options.locked .opt{pointer-events:none}
+.options.waiting .opt{opacity:.72}
+.opt{
+  width:var(--optw);aspect-ratio:1/1.12;cursor:pointer;
+  background:var(--card);border:4px solid var(--edge);border-radius:30px;
+  box-shadow:0 8px 0 var(--edge);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;padding:7% 6% 6%;
+  font-family:var(--display);font-weight:600;font-size:clamp(17px,3.3vmin,26px);line-height:1.1;
+  transition:opacity .25s ease,transform .25s ease,border-color .2s ease,box-shadow .2s ease;
+  touch-action:manipulation
+}
+.opt svg{width:80%;flex:1;min-height:0}
+.opt span{white-space:nowrap}
+.opt.right{border-color:var(--leaf);box-shadow:0 8px 0 var(--leaf-deep);animation:pop .5s ease}
+.opt.fade{opacity:.3;transform:scale(.92)}
+.opt.shake{animation:shake .45s ease}
+.opt.hint{animation:glow 1.3s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes glow{0%,100%{box-shadow:0 8px 0 var(--edge),0 0 0 0 rgba(255,159,28,0)}50%{box-shadow:0 8px 0 var(--edge),0 0 0 14px rgba(255,159,28,.45)}}
+
+@media (orientation:landscape) and (min-aspect-ratio:5/4){
+  .game{--optw:min(21vw,38vh,250px);grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .topbar{grid-column:1/-1}
+  .options{align-self:center;min-height:0}
+  .scene .koko-slot{max-height:62vh}
+  .scene.duo .koko-slot{max-width:30vw}
+  .companion{width:min(16vw,28vh)}
+}
+
+/* ---------- End ---------- */
+.end{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:clamp(8px,1.8vh,18px);text-align:center;overflow-y:auto;overflow-x:hidden;padding-top:8px}
+#endBubble{margin-top:auto}
+#againBtn{margin-bottom:auto;flex:none}
+.end .koko-slot{height:min(26vh,52vw);aspect-ratio:360/430;flex:none}
+.end .bubble{font-size:clamp(19px,3.6vmin,28px)}
+.end h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(28px,6vmin,46px);line-height:1.05}
+.mission{
+  background:var(--card);border:3px solid var(--edge);border-radius:24px;
+  padding:16px 20px 18px;max-width:560px;width:100%;text-align:start;box-shadow:0 6px 0 var(--edge)
+}
+.mission .label{font-size:13px;letter-spacing:.06em;font-weight:700;color:var(--sun-deep);margin:0}
+.mission h3{margin:.2em 0 .25em;font-family:var(--display);font-weight:600;font-size:clamp(21px,3.4vmin,26px)}
+.mission p{margin:0;font-size:clamp(16px,2.5vmin,19px);line-height:1.55;-webkit-user-select:text;user-select:text}
+.mission .why{margin-top:.7em;font-size:14px;color:var(--ink-soft);line-height:1.5}
+.again{
+  position:relative;overflow:hidden;border:0;cursor:pointer;border-radius:999px;
+  background:var(--card);box-shadow:0 5px 0 var(--edge);padding:12px 24px;font-family:var(--display);font-weight:600;font-size:18px
+}
+.again .fill{position:absolute;inset:0;width:0;background:rgba(255,159,28,.35)}
+.again.holding .fill{width:100%;transition:width 1.2s linear}
+.again .lbl{position:relative}
+.played{margin:0;font-size:14px;color:var(--ink-soft)}
+
+/* ---------- Parent sheet ---------- */
+.sheet-wrap{position:fixed;inset:0;z-index:20;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet{
+  background:var(--cream);width:min(100%,640px);max-height:92%;overflow:auto;-webkit-overflow-scrolling:touch;
+  border-radius:24px 24px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom));
+  -webkit-user-select:text;user-select:text;touch-action:pan-y
+}
+@media (min-width:700px) and (min-height:600px){.sheet-wrap{align-items:center}.sheet{border-radius:24px}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.sheet h2{margin:0;font-family:var(--display);font-weight:700;font-size:28px}
+.sheet h3{margin:22px 0 8px;font-family:var(--display);font-weight:600;font-size:20px}
+.sheet p,.sheet li{font-size:16px;line-height:1.55;margin:0}
+.sheet ol{margin:0;padding-inline-start:1.3em;display:grid;gap:4px}
+.sheet .muted{color:var(--ink-soft);font-size:14px}
+.field{display:grid;gap:6px;margin-top:6px}
+.field label{font-weight:700;font-size:15px}
+.field input[type=text]{font:inherit;font-size:17px;padding:10px 12px;border-radius:12px;border:2px solid var(--edge);background:var(--card);color:var(--ink);width:100%}
+.field input[type=range]{width:100%;accent-color:var(--sun)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{border:2px solid var(--edge);background:var(--card);border-radius:12px;padding:8px 14px;font-size:15px;cursor:pointer;font-family:var(--body)}
+.btn.primary{background:var(--sun);border-color:var(--sun-deep);color:#3A1E00;font-weight:700}
+.btn.rec-on{background:var(--berry);border-color:#C53A41;color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.status{font-size:14px;color:var(--ink-soft)}
+.status.warn{color:#A4540A}
+.recgroup{margin-top:12px}
+.recgroup h4{margin:0 0 6px;font-size:14px;letter-spacing:.04em;color:var(--sun-deep)}
+.recrow{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:10px 0;border-top:1px solid var(--edge)}
+@media (min-width:520px){.recrow{grid-template-columns:minmax(0,1fr) auto;align-items:center}}
+.recrow .txt{font-size:15px;line-height:1.4;min-width:0}
+.recrow .txt .ok{color:var(--leaf-deep);font-weight:700;font-size:13px;margin-inline-start:6px}
+.recrow .acts{display:flex;gap:6px}
+.recrow .btn{padding:6px 10px;font-size:14px}
+.close-x{border:0;background:var(--card);width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;line-height:1}
+
+@media (prefers-reduced-motion:reduce){
+  .bob .bird,.koko[data-mood="happy"] .bird,.companion.pop,.opt.right,.opt.shake,.opt.hint,.feather.done,.koko .zzz text{animation:none!important}
+  .koko .head{transition:none}
+  .opt.hint{box-shadow:0 8px 0 var(--edge),0 0 0 8px rgba(255,159,28,.5)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Start -->
+  <section class="screen start" id="screen-start">
+    <div class="deco" aria-hidden="true">
+      <svg class="sun" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="#FFF1B8"/><circle cx="110" cy="110" r="66" fill="#FFE27A"/></svg>
+      <svg class="leaf-a" viewBox="0 0 230 160"><path d="M220 150 Q120 150 40 70 Q120 30 220 150Z" fill="#9FDDB3"/><path d="M220 150 Q140 120 70 78" stroke="#6CC48C" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M200 160 Q150 60 170 0 Q230 70 200 160Z" fill="#7FD19E"/></svg>
+      <svg class="leaf-b" viewBox="0 0 200 160"><path d="M10 160 Q40 70 140 40 Q140 130 10 160Z" fill="#B7E6C6"/><path d="M14 156 Q70 100 128 52" stroke="#8ED3A6" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+    </div>
+    <button class="hold corner" id="parentBtnStart" type="button" aria-label="אזור הורים. החזיקו לחוץ כדי לפתוח">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-gear"/></svg>
+    </button>
+    <span class="hold-hint">ממשיכים להחזיק…</span>
+    <div class="koko-slot bob" id="kokoStartSlot"></div>
+    <h1 class="title"><span class="t1">קוקו</span> <span class="t2">התוכי</span></h1>
+    <p class="tag">קוקו מתבלבל. אתם מתקנים.</p>
+    <button class="play" id="playBtn" type="button" aria-label="מתחילים לשחק">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" fill="#fff"/></svg>
+    </button>
+    <p class="meta"><span>להורה וילד יחד</span><span>גילאי 2–3</span><span>כ־5 דקות</span><span>בלי פרסומות</span></p>
+    <p class="voice-note" id="voiceNote" hidden>אין במכשיר קול עברי, אז קוקו יכתוב בבועה. באזור ההורים אפשר להקליט את הקול שלכם.</p>
+  </section>
+
+  <!-- Game -->
+  <section class="screen game" id="screen-game" hidden>
+    <div class="topbar">
+      <div class="progress" id="progress" aria-label="התקדמות"></div>
+      <div class="chip" id="chip" hidden><svg viewBox="0 0 100 100" aria-hidden="true"><use id="chipIcon" href="#s-cow"/></svg><span id="chipText"></span></div>
+    </div>
+    <button class="hold corner" id="homeBtn" type="button" aria-label="חזרה למסך הפתיחה. החזיקו לחוץ">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-home"/></svg>
+    </button>
+    <span class="hold-hint">ממשיכים להחזיק…</span>
+    <div class="stage">
+      <div class="bubble" id="bubble" aria-live="polite"></div>
+      <div class="scene">
+        <div class="koko-slot" id="kokoGameSlot"></div>
+        <div class="companion" id="companion" hidden></div>
+      </div>
+    </div>
+    <div class="options off locked" id="options"></div>
+  </section>
+
+  <!-- End -->
+  <section class="screen end" id="screen-end" hidden>
+    <div class="deco" aria-hidden="true">
+      <svg class="leaf-a" viewBox="0 0 230 160"><path d="M220 150 Q120 150 40 70 Q120 30 220 150Z" fill="#9FDDB3"/><path d="M200 160 Q150 60 170 0 Q230 70 200 160Z" fill="#7FD19E"/></svg>
+    </div>
+    <button class="hold corner" id="parentBtnEnd" type="button" aria-label="אזור הורים. החזיקו לחוץ כדי לפתוח">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-gear"/></svg>
+    </button>
+    <span class="hold-hint">ממשיכים להחזיק…</span>
+    <div class="bubble" id="endBubble" aria-live="polite"></div>
+    <div class="koko-slot" id="kokoEndSlot"></div>
+    <h2>קוקו הלך לישון</h2>
+    <div class="mission">
+      <p class="label">המשימה שלכם עכשיו, בלי מסך</p>
+      <h3 id="missionTitle"></h3>
+      <p id="missionText"></p>
+      <p class="why">ילדים בגיל הזה לומדים ממסך פחות מאשר מהעולם האמיתי. המשימה מעבירה את מה שתרגלתם אל הבית.</p>
+    </div>
+    <p class="played" id="playedFor"></p>
+    <button class="again" id="againBtn" type="button" aria-label="משחק נוסף. החזיקו לחוץ">
+      <span class="fill" aria-hidden="true"></span><span class="lbl">משחק נוסף: החזיקו לחוץ</span>
+    </button>
+  </section>
+
+  <!-- Parent area -->
+  <div class="sheet-wrap" id="sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-head">
+        <h2 id="sheetTitle">אזור הורים</h2>
+        <button class="close-x" id="sheetClose" type="button" aria-label="סגירה">×</button>
+      </div>
+
+      <h3>איך משחקים ביחד</h3>
+      <ol>
+        <li>שבו ליד הילד ותנו לו לגעת בתשובה בעצמו.</li>
+        <li>צחקו יחד מהטעות של קוקו ושאלו: "מה קוקו אמר?"</li>
+        <li>בסוף המשחק עשו את המשימה שעל המסך, בלי מסך.</li>
+      </ol>
+
+      <h3>קוקו מדבר</h3>
+      <div class="field">
+        <label for="childName">שם הילד (קוקו יגיד שלום בקול המכשיר)</label>
+        <input type="text" id="childName" maxlength="20" autocomplete="off" placeholder="למשל: נועה">
+      </div>
+      <div class="field">
+        <label for="rate">קצב הדיבור</label>
+        <input type="range" id="rate" min="0.6" max="1.2" step="0.05">
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="testVoice" type="button">השמיעו דוגמה</button>
+        <span class="status" id="voiceStatus"></span>
+      </div>
+
+      <h3>הקול שלכם</h3>
+      <div id="recArea">
+        <p>אפשר להקליט כל משפט של קוקו בקול שלכם. משפט שלא הוקלט יוקרא בקול המכשיר. כל הקלטה עד 8 שניות.</p>
+        <p class="status" id="recMsg" role="status"></p>
+        <div id="recList"></div>
+      </div>
+      <p id="recEmbedNote" hidden>הקלטת קול זמינה בגרסה שמותקנת על הטלפון מ־GitHub. בתצוגה הזאת קוקו מדבר בקול המכשיר.</p>
+
+      <h3>פרטיות ובטיחות</h3>
+      <p>המשחק לא שולח מידע לשום מקום, אין בו פרסומות ואין בו קישורים החוצה. השם וההקלטות נשמרים רק במכשיר הזה.</p>
+      <p class="muted" style="margin-top:8px">כדי שהילד לא ייצא בטעות מהמשחק: באייפון הפעילו "גישה מודרכת" (Guided Access), ובאנדרואיד "הצמדת מסך".</p>
+      <div id="installTip">
+        <h3>התקנה על הטלפון</h3>
+        <p>אייפון, בספארי: כפתור השיתוף ← "הוספה למסך הבית".</p>
+        <p>אנדרואיד, בכרום: תפריט ⋮ ← "הוספה למסך הבית".</p>
+        <p class="muted" style="margin-top:6px">אחרי ההתקנה המשחק עובד גם בלי אינטרנט.</p>
+      </div>
+      <p class="muted" style="margin-top:22px">קוקו התוכי · נבנה בקהילת אבא AI · גרסה 1.0</p>
+    </div>
+  </div>
+</div>
+
+<!-- Sprite: original illustrations -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<symbol id="s-gear" viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></symbol>
+<symbol id="s-home" viewBox="0 0 24 24"><path fill="currentColor" d="M3 11.2 12 3.8l9 7.4V20a1 1 0 0 1-1 1h-5.2v-6.2H9.2V21H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="s-feather" viewBox="0 0 40 40"><path d="M7 35 C8 20 16 9 33 5 C34 20 25 31 9 34 Z" fill="currentColor" stroke="#17383F" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 34 Q18 22 27 13" stroke="#17383F" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+
+<symbol id="s-cow" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M31 24 Q24 10 30 4 Q33 14 41 19Z" fill="#F4E3C1"/>
+  <path d="M69 24 Q76 10 70 4 Q67 14 59 19Z" fill="#F4E3C1"/>
+  <ellipse cx="16" cy="38" rx="13" ry="7" transform="rotate(-18 16 38)" fill="#fff"/>
+  <ellipse cx="84" cy="38" rx="13" ry="7" transform="rotate(18 84 38)" fill="#fff"/>
+  <path d="M26 34 Q26 16 50 16 Q74 16 74 34 L73 66 L27 66Z" fill="#fff"/>
+  <path d="M28 32 Q32 21 44 22 Q47 32 38 37 Q30 39 28 32Z" fill="#17383F"/>
+  <path d="M65 44 Q73 41 73 53 Q66 56 63 50Z" fill="#17383F"/>
+  <ellipse cx="50" cy="73" rx="27" ry="18" fill="#FFB3C1"/>
+ </g>
+ <ellipse cx="40" cy="73" rx="4" ry="5.5" fill="#17383F"/><ellipse cx="60" cy="73" rx="4" ry="5.5" fill="#17383F"/>
+ <circle cx="40" cy="46" r="5" fill="#17383F"/><circle cx="60" cy="46" r="5" fill="#17383F"/>
+ <circle cx="41.6" cy="44.4" r="1.7" fill="#fff"/><circle cx="61.6" cy="44.4" r="1.7" fill="#fff"/>
+</symbol>
+
+<symbol id="s-dog" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <circle cx="50" cy="52" r="31" fill="#E0A96D"/>
+  <path d="M26 28 Q6 30 9 62 Q20 68 30 52Z" fill="#8B5A2B"/>
+  <path d="M74 28 Q94 30 91 62 Q80 68 70 52Z" fill="#8B5A2B"/>
+  <ellipse cx="50" cy="67" rx="18" ry="14" fill="#FFF4E0"/>
+  <path d="M44.5 76 Q50 91 55.5 76Z" fill="#FF8FA3"/>
+ </g>
+ <ellipse cx="50" cy="61" rx="7.5" ry="5.5" fill="#17383F"/>
+ <path d="M50 66 v7" stroke="#17383F" stroke-width="3" stroke-linecap="round"/>
+ <circle cx="39" cy="46" r="5" fill="#17383F"/><circle cx="61" cy="46" r="5" fill="#17383F"/>
+ <circle cx="40.6" cy="44.4" r="1.7" fill="#fff"/><circle cx="62.6" cy="44.4" r="1.7" fill="#fff"/>
+</symbol>
+
+<symbol id="s-cat" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M22 46 L20 11 L47 30Z" fill="#F6A04D"/>
+  <path d="M78 46 L80 11 L53 30Z" fill="#F6A04D"/>
+  <ellipse cx="50" cy="56" rx="32" ry="28" fill="#F6A04D"/>
+ </g>
+ <path d="M25.5 22 L27 36 L37 30Z" fill="#FFB3C1"/><path d="M74.5 22 L73 36 L63 30Z" fill="#FFB3C1"/>
+ <path d="M44 33 v7 M50 31 v8 M56 33 v7" stroke="#D97B22" stroke-width="3" stroke-linecap="round"/>
+ <ellipse cx="38" cy="52" rx="4.6" ry="6.2" fill="#17383F"/><ellipse cx="62" cy="52" rx="4.6" ry="6.2" fill="#17383F"/>
+ <circle cx="39.4" cy="50" r="1.6" fill="#fff"/><circle cx="63.4" cy="50" r="1.6" fill="#fff"/>
+ <path d="M46 61 H54 L50 66Z" fill="#FF8FA3" stroke="#17383F" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M50 66 Q46 72 41 69 M50 66 Q54 72 59 69" stroke="#17383F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+ <path d="M30 62 L10 59 M30 67 L11 71 M70 62 L90 59 M70 67 L89 71" stroke="#17383F" stroke-width="2" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="s-duck" viewBox="0 0 100 100">
+ <path d="M6 84 Q50 94 94 84" stroke="#7CC8F0" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M28 62 Q30 45 52 47 Q72 47 87 40 Q91 59 80 71 Q66 83 44 81 Q28 79 28 62Z" fill="#FFD43B"/>
+  <path d="M50 61 Q62 53 73 61 Q62 71 50 61Z" fill="#F5BE12"/>
+  <circle cx="36" cy="37" r="19" fill="#FFD43B"/>
+  <path d="M19 38 Q4 35 3 44 Q10 51 22 47Z" fill="#FF9F1C"/>
+ </g>
+ <circle cx="31" cy="32" r="4.6" fill="#17383F"/><circle cx="32.4" cy="30.6" r="1.5" fill="#fff"/>
+</symbol>
+
+<symbol id="s-sheep" viewBox="0 0 100 100">
+ <g fill="#fff" stroke="#17383F" stroke-width="3">
+  <circle cx="30" cy="30" r="14"/><circle cx="50" cy="22" r="14"/><circle cx="70" cy="30" r="14"/><circle cx="80" cy="50" r="14"/>
+  <circle cx="70" cy="70" r="14"/><circle cx="50" cy="78" r="14"/><circle cx="30" cy="70" r="14"/><circle cx="20" cy="50" r="14"/>
+ </g>
+ <g fill="#fff">
+  <circle cx="30" cy="30" r="12.5"/><circle cx="50" cy="22" r="12.5"/><circle cx="70" cy="30" r="12.5"/><circle cx="80" cy="50" r="12.5"/>
+  <circle cx="70" cy="70" r="12.5"/><circle cx="50" cy="78" r="12.5"/><circle cx="30" cy="70" r="12.5"/><circle cx="20" cy="50" r="12.5"/>
+  <circle cx="50" cy="50" r="28"/>
+ </g>
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <ellipse cx="28" cy="47" rx="11" ry="5.5" transform="rotate(22 28 47)" fill="#4A4A58"/>
+  <ellipse cx="72" cy="47" rx="11" ry="5.5" transform="rotate(-22 72 47)" fill="#4A4A58"/>
+  <ellipse cx="50" cy="55" rx="17" ry="21" fill="#4A4A58"/>
+ </g>
+ <circle cx="50" cy="35" r="9" fill="#fff"/><circle cx="43" cy="37" r="6" fill="#fff"/><circle cx="57" cy="37" r="6" fill="#fff"/>
+ <circle cx="43.5" cy="52" r="4.6" fill="#fff"/><circle cx="56.5" cy="52" r="4.6" fill="#fff"/>
+ <circle cx="44.3" cy="53" r="2.4" fill="#17383F"/><circle cx="55.7" cy="53" r="2.4" fill="#17383F"/>
+ <path d="M45 66 Q50 71 55 66" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="s-foot" viewBox="0 0 100 100">
+ <g fill="#F7C9A3" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M40 95 C24 95 22 75 27 61 C32 47 32 37 44 34 C58 31 70 41 69 59 C68 77 58 95 40 95Z"/>
+  <ellipse cx="34" cy="21" rx="9.5" ry="10.5"/>
+  <circle cx="49.5" cy="16" r="6.8"/>
+  <circle cx="60.5" cy="19" r="5.8"/>
+  <circle cx="68.5" cy="26.5" r="5.1"/>
+  <circle cx="73.5" cy="35.5" r="4.6"/>
+ </g>
+</symbol>
+
+<symbol id="s-head" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <circle cx="18" cy="57" r="7.5" fill="#F7C9A3"/><circle cx="82" cy="57" r="7.5" fill="#F7C9A3"/>
+  <circle cx="50" cy="55" r="33" fill="#F7C9A3"/>
+  <path d="M17 52 Q15 18 50 18 Q85 18 83 52 Q77 38 62 36 Q56 44 44 40 Q30 38 17 52Z" fill="#6B4226"/>
+ </g>
+ <circle cx="39" cy="58" r="4.2" fill="#17383F"/><circle cx="61" cy="58" r="4.2" fill="#17383F"/>
+ <circle cx="31" cy="68" r="5" fill="#FF8FA3" opacity=".6"/><circle cx="69" cy="68" r="5" fill="#FF8FA3" opacity=".6"/>
+ <path d="M41 72 Q50 80 59 72" stroke="#17383F" stroke-width="3" fill="none" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="s-hand" viewBox="0 0 100 100">
+ <g fill="none" stroke-linecap="round">
+  <g stroke="#17383F" stroke-width="15">
+   <path d="M40 50 L37 19"/><path d="M51 48 L51 12"/><path d="M62 50 L65 18"/><path d="M71 57 L79 31"/><path d="M33 68 L14 53"/>
+  </g>
+  <rect x="27" y="44" width="50" height="50" rx="18" fill="#F7C9A3" stroke="#17383F" stroke-width="3"/>
+  <g stroke="#F7C9A3" stroke-width="9">
+   <path d="M40 50 L37 19"/><path d="M51 48 L51 12"/><path d="M62 50 L65 18"/><path d="M71 57 L79 31"/><path d="M33 68 L14 53"/>
+  </g>
+ </g>
+ <rect x="29.5" y="47" width="45" height="44.5" rx="16" fill="#F7C9A3"/>
+</symbol>
+
+<symbol id="s-sock" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M34 8 H64 V54 Q64 62 72 66 L84 72 Q96 80 88 90 Q82 97 66 92 L42 84 Q30 80 32 66 L34 54Z" fill="#FF7A90"/>
+  <rect x="31" y="5" width="36" height="13" rx="4" fill="#fff"/>
+ </g>
+ <path d="M35.5 31 H62.5 M35.5 44 H62.5" stroke="#fff" stroke-width="5"/>
+ <path d="M78 71 Q93 78 88 88 Q83 94 73 91 Q80 82 78 71Z" fill="#FFC93C"/>
+</symbol>
+
+<symbol id="s-hat" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M18 72 Q16 26 50 26 Q84 26 82 72Z" fill="#3A86FF"/>
+  <rect x="12" y="64" width="76" height="19" rx="8" fill="#9CC5FF"/>
+  <circle cx="50" cy="18" r="10" fill="#FFC93C"/>
+ </g>
+ <path d="M34 37 Q32 52 34 62 M50 31 V62 M66 37 Q68 52 66 62" stroke="#2C6FD6" stroke-width="3" fill="none" stroke-linecap="round"/>
+</symbol>
+
+<symbol id="s-shoe" viewBox="0 0 100 100">
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M12 70 Q12 50 24 46 L42 42 Q48 26 58 26 L66 28 Q68 44 80 50 Q94 56 92 70Z" fill="#F2545B"/>
+  <path d="M8 70 H96 Q97 84 86 84 H18 Q7 84 8 70Z" fill="#fff"/>
+ </g>
+ <path d="M46 45 L57 40 M48 53 L61 47" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+ <path d="M15 62 Q23 56 35 58" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+</symbol>
+
+<symbol id="s-toothbrush" viewBox="0 0 100 100">
+ <g transform="rotate(-35 50 50)">
+  <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+   <rect x="4" y="53" width="68" height="11" rx="5.5" fill="#3AC0D9"/>
+   <rect x="67" y="50" width="28" height="16" rx="5" fill="#3AC0D9"/>
+   <rect x="69" y="32" width="24" height="19" rx="3" fill="#fff"/>
+  </g>
+  <path d="M75 35.5 v12 M81 35.5 v12 M87 35.5 v12" stroke="#9AD7E6" stroke-width="2.5" stroke-linecap="round"/>
+ </g>
+</symbol>
+
+<symbol id="s-hairbrush" viewBox="0 0 100 100">
+ <g transform="rotate(-35 50 50)">
+  <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+   <rect x="2" y="44" width="46" height="13" rx="6.5" fill="#B8733A"/>
+   <ellipse cx="70" cy="50" rx="27" ry="21" fill="#B8733A"/>
+   <ellipse cx="71" cy="50" rx="20" ry="14" fill="#F3D2B3"/>
+  </g>
+  <g fill="#17383F">
+   <circle cx="60" cy="45" r="1.9"/><circle cx="67" cy="42" r="1.9"/><circle cx="75" cy="42" r="1.9"/><circle cx="82" cy="45" r="1.9"/>
+   <circle cx="57" cy="52" r="1.9"/><circle cx="64" cy="50" r="1.9"/><circle cx="71" cy="50" r="1.9"/><circle cx="78" cy="50" r="1.9"/><circle cx="85" cy="52" r="1.9"/>
+   <circle cx="62" cy="57" r="1.9"/><circle cx="70" cy="58" r="1.9"/><circle cx="78" cy="57" r="1.9"/>
+  </g>
+ </g>
+</symbol>
+
+<symbol id="s-cup" viewBox="0 0 100 100">
+ <path d="M70 41 Q91 40 88 58 Q86 75 66 73" fill="none" stroke="#17383F" stroke-width="10" stroke-linecap="round"/>
+ <path d="M70 41 Q91 40 88 58 Q86 75 66 73" fill="none" stroke="#FFC93C" stroke-width="4" stroke-linecap="round"/>
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <path d="M20 26 H76 L70 86 Q69 92 62 92 H34 Q27 92 26 86Z" fill="#FFC93C"/>
+  <ellipse cx="48" cy="26" rx="28" ry="7" fill="#7CC8F0"/>
+ </g>
+ <path d="M31 45 Q48 51 65 45" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+</symbol>
+
+<symbol id="s-spoon" viewBox="0 0 100 100">
+ <g transform="rotate(32 50 50)" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <rect x="45" y="44" width="10" height="53" rx="5" fill="#C9D6DF"/>
+  <ellipse cx="50" cy="26" rx="15.5" ry="21" fill="#C9D6DF"/>
+  <ellipse cx="46.5" cy="22" rx="5" ry="9" fill="#fff" stroke="none" opacity=".85"/>
+ </g>
+</symbol>
+
+<symbol id="s-fork" viewBox="0 0 100 100">
+ <g transform="rotate(32 50 50)" stroke="#17383F" stroke-width="3" stroke-linejoin="round" fill="#C9D6DF">
+  <rect x="35" y="5" width="6" height="34" rx="3"/>
+  <rect x="44" y="5" width="5.5" height="34" rx="2.75"/>
+  <rect x="50.5" y="5" width="5.5" height="34" rx="2.75"/>
+  <rect x="59" y="5" width="6" height="34" rx="3"/>
+  <rect x="45" y="44" width="10" height="53" rx="5"/>
+  <path d="M34 32 H66 Q66 50 50 51 Q34 50 34 32Z"/>
+ </g>
+</symbol>
+
+<symbol id="s-bowl" viewBox="0 0 100 100">
+ <path d="M36 32 q-6 -8 0 -16 M50 30 q-6 -8 0 -16 M64 32 q-6 -8 0 -16" stroke="#8FB1B8" stroke-width="3" fill="none" stroke-linecap="round"/>
+ <g stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+  <ellipse cx="50" cy="48" rx="40" ry="10" fill="#FFB347"/>
+  <path d="M10 48 Q12 87 50 89 Q88 87 90 48 Q70 58 50 58 Q30 58 10 48Z" fill="#F2545B"/>
+ </g>
+ <path d="M22 65 Q50 77 78 65" stroke="#fff" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>
+</symbol>
+</defs>
+</svg>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- basics ---------- */
+const EMBED = !!window.KOKO_EMBED;
+const SPEED = (window.__kokoTest && window.__kokoTest.speed) || 1;
+const T = ms => ms * SPEED;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('koko.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('koko.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ---------- content ---------- */
+const ROUNDS = [
+  { key: 'animals', title: 'חיות', icon: 's-cow', introId: 'r1', intro: 'בואו נשחק בחיות!', items: [
+    { id: 'i1', show: 's-dog', say: 'הכלב עושה... מוווו!', ask: 'רגע... מי עושה מו?', yes: 'נכון! הפרה עושה מוווו! והכלב עושה הב הב!',
+      opts: [['s-cow', 'פרה', 1], ['s-dog', 'כלב', 0]] },
+    { id: 'i2', show: 's-cat', say: 'החתול עושה... גע גע!', ask: 'מי עושה גע גע?', yes: 'נכון! הברווז עושה גע גע! והחתול עושה מיאו!',
+      opts: [['s-duck', 'ברווז', 1], ['s-cat', 'חתול', 0]] },
+    { id: 'i3', show: 's-sheep', say: 'הכבשה עושה... מיאו!', ask: 'מי עושה מיאו?', yes: 'נכון! החתול עושה מיאו! והכבשה עושה מההה!',
+      opts: [['s-cat', 'חתול', 1], ['s-sheep', 'כבשה', 0]] }
+  ]},
+  { key: 'clothes', title: 'בגדים', icon: 's-sock', introId: 'r2', intro: 'עכשיו אני מתלבש!', items: [
+    { id: 'i4', wear: [{ s: 's-sock', x: 96, y: -40, w: 108, h: 108, r: -14 }],
+      say: 'אני שם גרב... על הראש!', ask: 'איפה שמים גרב?', yes: 'נכון! גרב שמים על הרגל!',
+      opts: [['s-foot', 'רגל', 1], ['s-head', 'ראש', 0]] },
+    { id: 'i5', wear: [{ s: 's-hat', x: 132, y: 246, w: 100, h: 100, r: 6 }],
+      say: 'ואת הכובע... על הרגל!', ask: 'איפה שמים כובע?', yes: 'נכון! כובע שמים על הראש!',
+      opts: [['s-head', 'ראש', 1], ['s-foot', 'רגל', 0]] },
+    { id: 'i6', wear: [{ s: 's-shoe', x: 200, y: 214, w: 96, h: 96, r: -28 }],
+      say: 'והנעל... על היד!', ask: 'איפה שמים נעל?', yes: 'נכון! נעל שמים על הרגל!',
+      opts: [['s-foot', 'רגל', 1], ['s-hand', 'יד', 0]] }
+  ]},
+  { key: 'home', title: 'בבית', icon: 's-cup', introId: 'r3', intro: 'ועכשיו... דברים בבית!', items: [
+    { id: 'i7', wear: [{ s: 's-hairbrush', x: 96, y: 104, w: 112, h: 112, r: 0 }],
+      say: 'אני מצחצח שיניים... עם מברשת לשיער!', ask: 'עם מה מצחצחים שיניים?', yes: 'נכון! עם מברשת שיניים! צחצוח, צחצוח!',
+      opts: [['s-toothbrush', 'מברשת שיניים', 1], ['s-hairbrush', 'מברשת שיער', 0]] },
+    { id: 'i8', wear: [{ s: 's-shoe', x: 154, y: 110, w: 92, h: 92, r: -32 }],
+      say: 'אני שותה מים... מתוך נעל!', ask: 'ממה שותים מים?', yes: 'נכון! שותים מכוס! גלוג גלוג!',
+      opts: [['s-cup', 'כוס', 1], ['s-shoe', 'נעל', 0]] },
+    { id: 'i9', wear: [{ s: 's-bowl', x: -26, y: 246, w: 112, h: 112, r: 0 }, { s: 's-fork', x: 196, y: 150, w: 100, h: 100, r: 0 }],
+      say: 'אני אוכל מרק... עם מזלג!', ask: 'עם מה אוכלים מרק?', yes: 'נכון! אוכלים מרק עם כף! יאמי!',
+      opts: [['s-spoon', 'כף', 1], ['s-fork', 'מזלג', 0]] }
+  ]}
+];
+const TOTAL = ROUNDS.reduce((n, r) => n + r.items.length, 0);
+
+const LINES = {
+  greet: 'שלום! אני קוקו התוכי. אני קצת מתבלבל... תעזרו לי?',
+  oops: 'הממ... לא נראה לי.',
+  bye: 'תודה שעזרתם לי! עכשיו תורכם לשחק ביחד.',
+  end: 'אני עייף... לילה טוב!'
+};
+
+const MISSIONS = [
+  { title: 'עכשיו אתם קוקו', text: 'תגידו לילד "הכלב עושה מיאו!" ותנו לו לתקן אתכם. אחר כך מתחלפים: הוא קוקו, ואתם מתקנים.' },
+  { title: 'מתלבשים הפוך', text: 'הביאו גרב, כובע ונעל. שימו אותם במקום הלא נכון, ותנו לילד לסדר אותם כמו שצריך.' },
+  { title: 'צחצוח אמיתי', text: 'לכו לצחצח שיניים, עם המברשת הנכונה. בדרך אפשר לשאול: "במה קוקו התבלבל?"' },
+  { title: 'הארוחה של קוקו', text: 'שימו על השולחן כוס, כף ומזלג. בקשו מהילד להראות ממה שותים ובמה אוכלים מרק.' }
+];
+
+function lineList() {
+  const out = [{ id: 'greet', text: LINES.greet, group: 'פתיחה' }];
+  ROUNDS.forEach(r => {
+    out.push({ id: r.introId, text: r.intro, group: r.title });
+    r.items.forEach(it => {
+      out.push({ id: it.id + '_say', text: it.say, group: r.title });
+      out.push({ id: it.id + '_ask', text: it.ask, group: r.title });
+      out.push({ id: it.id + '_yes', text: it.yes, group: r.title });
+    });
+  });
+  out.push({ id: 'oops', text: LINES.oops, group: 'סיום ותגובות' });
+  out.push({ id: 'bye', text: LINES.bye, group: 'סיום ותגובות' });
+  out.push({ id: 'end', text: LINES.end, group: 'סיום ותגובות' });
+  return out;
+}
+
+/* ---------- state ---------- */
+const S = {
+  token: 0, accepting: false, onPick: null, cancelWait: null, stopCurrent: null,
+  recs: new Map(), heVoice: null, voiceCount: 0, ttsBroken: 0,
+  rate: Number(store.get('rate', 0.9)) || 0.9, name: String(store.get('name', '') || ''),
+  startedAt: 0, done: 0, wake: null
+};
+
+/* ---------- Koko ---------- */
+function kokoMarkup() {
+  return `<svg class="koko" viewBox="-30 -60 360 430" preserveAspectRatio="xMidYMax meet" data-mood="idle" aria-hidden="true" focusable="false">
+  <g class="branch">
+    <path d="M-28 340 Q60 328 150 336 T328 332" stroke="#8A5A33" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="M36 333 Q20 306 -8 310 Q14 332 36 333Z" fill="#5DBB63"/>
+    <path d="M264 334 Q284 310 312 314 Q292 338 264 334Z" fill="#5DBB63"/>
+  </g>
+  <g class="bird">
+    <g class="tail" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+      <path d="M128 282 Q104 330 112 364 Q134 342 148 298Z" fill="#3A86FF"/>
+      <path d="M170 282 Q196 330 188 362 Q168 340 154 298Z" fill="#FFC93C"/>
+      <path d="M149 288 Q148 340 156 372 Q170 342 163 290Z" fill="#F2545B"/>
+    </g>
+    <g class="feet" fill="#FF9F1C" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+      <path d="M120 306 Q118 326 104 336 H142 Q134 326 134 306Z"/>
+      <path d="M166 306 Q166 326 158 336 H196 Q182 326 180 306Z"/>
+    </g>
+    <ellipse cx="150" cy="226" rx="84" ry="94" fill="#2DB36F" stroke="#17383F" stroke-width="3"/>
+    <ellipse cx="150" cy="246" rx="54" ry="64" fill="#FFE08A"/>
+    <path d="M122 238 q14 10 28 0 q14 10 28 0 M130 266 q10 8 20 0 q10 8 20 0" stroke="#F2C14E" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g class="wing-l" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+      <path d="M82 172 Q36 224 58 292 Q94 280 106 222 Q102 188 82 172Z" fill="#23985C"/>
+      <path d="M58 292 Q50 262 62 238 Q74 268 72 292Z" fill="#3A86FF"/>
+    </g>
+    <g class="wing-r" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+      <path d="M218 172 Q264 224 242 292 Q206 280 194 222 Q198 188 218 172Z" fill="#23985C"/>
+      <path d="M242 292 Q250 262 238 238 Q226 268 228 292Z" fill="#3A86FF"/>
+    </g>
+    <g class="head">
+      <g class="crest" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+        <path d="M144 52 Q122 10 98 8 Q116 28 126 58Z" fill="#F2545B"/>
+        <path d="M158 54 Q186 16 214 16 Q194 36 176 62Z" fill="#FFC93C"/>
+        <path d="M148 50 Q148 -2 168 -20 Q172 14 166 52Z" fill="#FF9F1C"/>
+      </g>
+      <circle cx="150" cy="114" r="74" fill="#2DB36F" stroke="#17383F" stroke-width="3"/>
+      <ellipse cx="150" cy="124" rx="56" ry="48" fill="#6AD69D" opacity=".5"/>
+      <circle cx="102" cy="142" r="12" fill="#FF8FA3" opacity=".75"/>
+      <circle cx="198" cy="142" r="12" fill="#FF8FA3" opacity=".75"/>
+      <g class="eyes eyes-open">
+        <circle cx="122" cy="106" r="22" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="178" cy="106" r="22" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="126" cy="110" r="11" fill="#17383F"/><circle cx="174" cy="110" r="11" fill="#17383F"/>
+        <circle cx="130" cy="105" r="4" fill="#fff"/><circle cx="178" cy="105" r="4" fill="#fff"/>
+      </g>
+      <g class="eyes eyes-happy" stroke="#17383F" stroke-width="7" fill="none" stroke-linecap="round">
+        <path d="M104 112 Q122 90 140 112"/><path d="M160 112 Q178 90 196 112"/>
+      </g>
+      <g class="eyes eyes-closed" stroke="#17383F" stroke-width="6" fill="none" stroke-linecap="round">
+        <path d="M104 106 Q122 120 140 106"/><path d="M160 106 Q178 120 196 106"/>
+      </g>
+      <g class="eyes eyes-confused">
+        <circle cx="122" cy="104" r="23" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="180" cy="110" r="16" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="116" cy="96" r="10" fill="#17383F"/><circle cx="184" cy="106" r="7.5" fill="#17383F"/>
+        <circle cx="119" cy="92" r="3.5" fill="#fff"/>
+        <path d="M98 70 Q120 56 144 70 M162 86 L200 92" stroke="#17383F" stroke-width="6" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="eyes eyes-wow">
+        <circle cx="122" cy="104" r="25" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="178" cy="104" r="25" fill="#fff" stroke="#17383F" stroke-width="3"/>
+        <circle cx="122" cy="106" r="6.5" fill="#17383F"/><circle cx="178" cy="106" r="6.5" fill="#17383F"/>
+      </g>
+      <g class="beak beak-closed" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+        <path d="M132 150 Q150 170 168 150 Q150 160 132 150Z" fill="#DD7D0A"/>
+        <path d="M124 138 C124 120 176 120 176 138 C176 158 162 170 152 178 C150 166 140 158 128 152 C125 148 124 143 124 138Z" fill="#FF9F1C"/>
+      </g>
+      <g class="beak beak-open" stroke="#17383F" stroke-width="3" stroke-linejoin="round">
+        <ellipse cx="150" cy="160" rx="18" ry="14" fill="#7A2E2E"/>
+        <ellipse cx="150" cy="167" rx="9" ry="5" fill="#FF8FA3" stroke="none"/>
+        <path d="M130 160 Q150 194 170 160 Q150 174 130 160Z" fill="#DD7D0A"/>
+        <path d="M124 132 C124 114 176 114 176 132 C176 148 166 156 156 160 C152 152 140 150 128 146 C125 142 124 137 124 132Z" fill="#FF9F1C"/>
+      </g>
+    </g>
+    <g class="wear"></g>
+    <g class="qmarks" fill="#17383F" style="font-family:var(--display);font-weight:700" direction="ltr">
+      <text x="232" y="34" font-size="54">?</text><text x="270" y="2" font-size="36">?</text>
+    </g>
+    <g class="zzz" fill="#4C6A70" style="font-family:var(--display);font-weight:700" direction="ltr">
+      <text x="222" y="40" font-size="40">Z</text><text x="254" y="8" font-size="30">z</text><text x="280" y="-18" font-size="22">z</text>
+    </g>
+  </g>
+</svg>`;
+}
+function mountKoko(slotId) { const slot = document.getElementById(slotId); slot.innerHTML = kokoMarkup(); return slot.firstElementChild; }
+const K = { start: mountKoko('kokoStartSlot'), game: mountKoko('kokoGameSlot'), end: mountKoko('kokoEndSlot') };
+function setMood(k, mood) { k.dataset.mood = mood; }
+
+setInterval(() => {
+  $$('.koko[data-mood="idle"]').forEach(k => {
+    if (Math.random() < 0.6) { k.classList.add('blink'); setTimeout(() => k.classList.remove('blink'), 170); }
+  });
+}, 2600);
+
+/* ---------- screens ---------- */
+function show(name) { ['start', 'game', 'end'].forEach(n => { $('#screen-' + n).hidden = n !== name; }); }
+const alive = tok => tok === S.token;
+
+/* ---------- voice ---------- */
+function initVoices() {
+  if (!('speechSynthesis' in window)) { updateVoiceStatus(); return; }
+  const pick = () => {
+    let vs = [];
+    try { vs = window.speechSynthesis.getVoices() || []; } catch (e) {}
+    S.voiceCount = vs.length;
+    S.heVoice = vs.find(v => /^(he|iw)([-_]|$)/i.test(v.lang)) || null;
+    updateVoiceStatus();
+  };
+  pick();
+  try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
+}
+function knownNoHebrew() { return S.voiceCount > 0 && !S.heVoice; }
+function ttsUsable() { return ('speechSynthesis' in window) && S.ttsBroken < 2 && !knownNoHebrew(); }
+function estimate(text) { return T((650 + text.length * 85) / Math.max(0.5, S.rate)); }
+function ttsText(text) { return text.replace(/\.\.\./g, ', '); }
+
+function speakTTS(text) {
+  return new Promise(resolve => {
+    const synth = window.speechSynthesis;
+    const est = estimate(text), t0 = Date.now();
+    let finished = false, started = false, fellBack = false, t1 = null, t2 = null;
+    const finish = () => { if (finished) return; finished = true; clearTimeout(t1); clearTimeout(t2); if (S.stopCurrent === stop) S.stopCurrent = null; resolve(); };
+    const stop = () => { try { synth.cancel(); } catch (e) {} finish(); };
+    // The engine did not really speak (no voice, blocked, failed): keep the pacing so the bubble stays on screen.
+    const fallback = () => {
+      if (finished || fellBack) return;
+      fellBack = true; S.ttsBroken++;
+      clearTimeout(t1); clearTimeout(t2);
+      t2 = setTimeout(finish, Math.max(0, est - (Date.now() - t0)));
+    };
+    const u = new SpeechSynthesisUtterance(ttsText(text));
+    u.lang = 'he-IL'; if (S.heVoice) u.voice = S.heVoice;
+    u.rate = S.rate; u.pitch = 1.3;
+    u.onstart = () => { started = true; S.ttsBroken = 0; };
+    u.onend = () => { if (fellBack) return; if (started || Date.now() - t0 > est * 0.3) finish(); else fallback(); };
+    u.onerror = e => {
+      if (fellBack) return;
+      const er = e && e.error;
+      if (er === 'interrupted' || er === 'canceled') finish(); else fallback();
+    };
+    S.stopCurrent = stop;
+    try { if (synth.speaking || synth.pending) synth.cancel(); synth.speak(u); } catch (e) { fallback(); return; }
+    t1 = setTimeout(() => { if (!started && !finished && !fellBack) { fallback(); try { synth.cancel(); } catch (e) {} } }, T(2500));
+    t2 = setTimeout(finish, est * 2.5 + T(4000));
+  });
+}
+function playBlob(blob) {
+  return new Promise(resolve => {
+    let url = null, a = null, fin = false, g = null;
+    const finish = () => { if (fin) return; fin = true; clearTimeout(g); try { URL.revokeObjectURL(url); } catch (e) {} if (S.stopCurrent === stop) S.stopCurrent = null; resolve(); };
+    const stop = () => { try { a.pause(); } catch (e) {} finish(); };
+    try { url = URL.createObjectURL(blob); a = new Audio(url); } catch (e) { finish(); return; }
+    a.onended = finish; a.onerror = finish;
+    S.stopCurrent = stop;
+    g = setTimeout(finish, 15000);
+    const p = a.play(); if (p && p.catch) p.catch(finish);
+  });
+}
+
+function say(id, text, opts = {}) {
+  const k = opts.koko || K.game;
+  const bubble = opts.bubble || $('#bubble');
+  const tok = S.token;
+  bubble.textContent = text;
+  k.classList.add('talking');
+  let p;
+  const rec = S.recs.get(id);
+  if (rec) p = playBlob(rec);
+  else if (ttsUsable()) p = speakTTS(opts.tts || text);
+  else p = wait(estimate(text));
+  return p.catch(() => {}).then(() => { if (alive(tok)) k.classList.remove('talking'); });
+}
+function stopAll() {
+  S.token++;
+  S.accepting = false; S.onPick = null;
+  if (S.cancelWait) { const c = S.cancelWait; S.cancelWait = null; c(); }
+  if (S.stopCurrent) S.stopCurrent();
+  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+  $$('.koko').forEach(k => k.classList.remove('talking'));
+}
+
+/* ---------- game UI ---------- */
+const optionsEl = $('#options');
+function renderProgress() {
+  $('#progress').innerHTML = Array.from({ length: TOTAL }, (_, i) =>
+    `<svg class="feather${i < S.done ? ' done' : ''}" viewBox="0 0 40 40" aria-hidden="true"><use href="#s-feather"/></svg>`).join('');
+  $('#progress').setAttribute('aria-label', `התקדמות: ${S.done} מתוך ${TOTAL}`);
+}
+function setChip(round) {
+  const chip = $('#chip');
+  if (!round) { chip.hidden = true; return; }
+  $('#chipIcon').setAttribute('href', '#' + round.icon);
+  $('#chipText').textContent = round.title;
+  chip.hidden = false;
+}
+function setScene(item) {
+  const c = $('#companion');
+  if (item && item.show) {
+    c.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${item.show}"/></svg>`;
+    c.hidden = false; c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+  } else { c.hidden = true; c.innerHTML = ''; }
+  c.parentElement.classList.toggle('duo', !c.hidden);
+  const wear = K.game.querySelector('.wear');
+  wear.innerHTML = ((item && item.wear) || []).map(w =>
+    `<use href="#${w.s}" x="${w.x}" y="${w.y}" width="${w.w}" height="${w.h}" transform="rotate(${w.r || 0} ${w.x + w.w / 2} ${w.y + w.h / 2})"/>`).join('');
+}
+function renderOptions(item) {
+  const opts = item.opts.slice();
+  if (Math.random() < 0.5) opts.reverse();
+  optionsEl.innerHTML = opts.map(([s, label, ok]) =>
+    `<button class="opt" type="button" data-correct="${ok}" data-sym="${s}" aria-label="${esc(label)}"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${s}"/></svg><span>${esc(label)}</span></button>`).join('');
+  optionsEl.classList.remove('off');
+  optionsEl.classList.add('locked', 'waiting');
+  S.accepting = false;
+}
+function hideOptions() { S.accepting = false; optionsEl.classList.add('off', 'locked'); optionsEl.classList.remove('waiting'); }
+function lockOptions() { S.accepting = false; optionsEl.classList.add('locked'); }
+function unlockOptions() { optionsEl.classList.remove('locked', 'waiting'); S.accepting = true; }
+function hint() { const b = optionsEl.querySelector('.opt[data-correct="1"]'); if (b) b.classList.add('hint'); }
+
+function pick(btn) {
+  if (!S.accepting || !S.onPick || !btn) return;
+  S.onPick(btn);
+}
+optionsEl.addEventListener('pointerdown', e => { if (e.isPrimary === false) return; pick(e.target.closest('.opt')); });
+optionsEl.addEventListener('click', e => { if (e.detail === 0) pick(e.target.closest('.opt')); });
+
+function waitForCorrect(item, tok) {
+  return new Promise(resolve => {
+    let wrongs = 0, idles = 0, idleTimer = null, settled = false;
+    const done = () => { if (settled) return; settled = true; clearTimeout(idleTimer); S.onPick = null; S.cancelWait = null; resolve(); };
+    const arm = () => { clearTimeout(idleTimer); idleTimer = setTimeout(onIdle, T(9000)); };
+    const ask = async () => {
+      setMood(K.game, 'idle');
+      await say(item.id + '_ask', item.ask);
+    };
+    async function onIdle() {
+      if (!alive(tok) || settled) return done();
+      idles++;
+      if (idles > 2) { hint(); return; }        // stop nagging: wait quietly with a hint
+      lockOptions();
+      await ask();
+      if (!alive(tok) || settled) return done();
+      if (idles >= 2) hint();
+      unlockOptions(); arm();
+    }
+    S.onPick = async btn => {
+      lockOptions(); clearTimeout(idleTimer);
+      if (btn.dataset.correct === '1') {
+        btn.classList.remove('hint');
+        btn.classList.add('right');
+        $$('.opt', optionsEl).forEach(o => { if (o !== btn) o.classList.add('fade'); });
+        return done();
+      }
+      wrongs++;
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      setMood(K.game, 'wow');
+      await say('oops', LINES.oops);
+      if (!alive(tok) || settled) return done();
+      await ask();
+      if (!alive(tok) || settled) return done();
+      if (wrongs >= 2) hint();
+      unlockOptions(); arm();
+    };
+    S.cancelWait = done;
+    unlockOptions(); arm();
+  });
+}
+
+async function playItem(item, tok) {
+  hideOptions();
+  setScene(item);
+  setMood(K.game, 'confused');
+  await say(item.id + '_say', item.say);
+  if (!alive(tok)) return;
+  renderOptions(item);
+  setMood(K.game, 'idle');
+  await say(item.id + '_ask', item.ask);
+  if (!alive(tok)) return;
+  await waitForCorrect(item, tok);
+  if (!alive(tok)) return;
+  setMood(K.game, 'happy');
+  await say(item.id + '_yes', item.yes);
+  if (!alive(tok)) return;
+  await wait(T(400));
+}
+
+function greetText() { return S.name ? `שלום ${S.name}! אני קוקו התוכי. אני קצת מתבלבל... תעזרו לי?` : LINES.greet; }
+
+async function startSession() {
+  stopAll();
+  const tok = S.token;
+  S.startedAt = Date.now(); S.done = 0;
+  renderProgress(); setChip(null); setScene(null); hideOptions();
+  optionsEl.innerHTML = '';
+  $('#bubble').textContent = '';
+  setMood(K.game, 'idle');
+  show('game');
+  requestWake();
+  await say('greet', greetText());          // first speech starts inside the tap, so iOS allows audio
+  if (!alive(tok)) return;
+  for (const round of ROUNDS) {
+    setChip(round); setScene(null); hideOptions(); setMood(K.game, 'idle');
+    await say(round.introId, round.intro);
+    if (!alive(tok)) return;
+    for (const item of round.items) {
+      await playItem(item, tok);
+      if (!alive(tok)) return;
+      S.done++; renderProgress();
+      await wait(T(500));
+      if (!alive(tok)) return;
+    }
+  }
+  setScene(null); hideOptions(); setChip(null);
+  setMood(K.game, 'happy');
+  await say('bye', LINES.bye);
+  if (!alive(tok)) return;
+  await wait(T(600));
+  if (!alive(tok)) return;
+  finish(tok);
+}
+
+async function finish(tok) {
+  releaseWake();
+  const mins = Math.max(1, Math.round((Date.now() - S.startedAt) / 60000));
+  const last = store.get('lastMission', -1);
+  let idx = Math.floor(Math.random() * MISSIONS.length);
+  if (idx === last) idx = (idx + 1) % MISSIONS.length;
+  store.set('lastMission', idx);
+  $('#missionTitle').textContent = MISSIONS[idx].title;
+  $('#missionText').textContent = MISSIONS[idx].text;
+  $('#playedFor').textContent = mins === 1 ? 'שיחקתם בערך דקה.' : `שיחקתם בערך ${mins} דקות.`;
+  $('#endBubble').textContent = '';
+  setMood(K.end, 'idle');
+  show('end');
+  await say('end', LINES.end, { koko: K.end, bubble: $('#endBubble') });
+  if (!alive(tok)) return;
+  setMood(K.end, 'sleep');
+}
+
+function exitToStart() { stopAll(); releaseWake(); setMood(K.start, 'idle'); show('start'); }
+
+/* ---------- wake lock ---------- */
+async function requestWake() {
+  try { if ('wakeLock' in navigator) S.wake = await navigator.wakeLock.request('screen'); } catch (e) { S.wake = null; }
+}
+function releaseWake() { try { if (S.wake) S.wake.release(); } catch (e) {} S.wake = null; }
+
+/* ---------- hold-to-activate (parent gate) ---------- */
+function holdable(el, action, ms = 1200) {
+  let t = null;
+  const cancel = () => { if (t) { clearTimeout(t); t = null; } el.classList.remove('holding'); };
+  el.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    cancel(); el.classList.add('holding');
+    t = setTimeout(() => { t = null; el.classList.remove('holding'); action(); }, ms);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, cancel));
+  el.addEventListener('click', e => { if (e.detail === 0) action(); });   // keyboard
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+/* ---------- recordings (IndexedDB, this device only) ---------- */
+const idb = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open('koko', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('rec');
+        r.onsuccess = () => { this.db = r.result; res(this.db); };
+        r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    });
+  },
+  async tx(mode, fn) {
+    const db = this.db || await this.open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('rec', mode);
+      const out = fn(tx.objectStore('rec'));
+      tx.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+      tx.onerror = () => rej(tx.error);
+    });
+  },
+  async all() {
+    const db = this.db || await this.open();
+    return new Promise((res, rej) => {
+      const out = new Map();
+      const rq = db.transaction('rec', 'readonly').objectStore('rec').openCursor();
+      rq.onsuccess = () => { const c = rq.result; if (c) { out.set(c.key, c.value); c.continue(); } else res(out); };
+      rq.onerror = () => rej(rq.error);
+    });
+  },
+  put(k, v) { return this.tx('readwrite', st => st.put(v, k)); },
+  del(k) { return this.tx('readwrite', st => st.delete(k)); }
+};
+async function loadRecordings() {
+  if (EMBED) return;
+  try {
+    const all = await idb.all();
+    all.forEach((v, k) => { if (v && v.buf) S.recs.set(k, new Blob([v.buf], { type: v.type || 'audio/mp4' })); });
+  } catch (e) {}
+  updateVoiceStatus();
+}
+
+const Rec = {
+  mr: null, stream: null, id: null, timer: null,
+  supported() { return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); },
+  async start(id) {
+    if (this.mr) this.stop();
+    recMsg('');
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch (e) { recMsg('אין גישה למיקרופון. אשרו גישה למיקרופון בהגדרות הדפדפן ונסו שוב.', true); return; }
+    let mr;
+    try { mr = new MediaRecorder(this.stream); }
+    catch (e) { recMsg('המכשיר הזה לא תומך בהקלטה.', true); this.stream.getTracks().forEach(t => t.stop()); return; }
+    const chunks = [];
+    this.mr = mr; this.id = id;
+    mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    mr.onstop = async () => {
+      const type = mr.mimeType || (chunks[0] && chunks[0].type) || 'audio/mp4';
+      const blob = new Blob(chunks, { type });
+      try { this.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      const rid = this.id; this.mr = null; this.id = null; this.stream = null;
+      if (blob.size > 0) {
+        S.recs.set(rid, blob);
+        try { await idb.put(rid, { buf: await blob.arrayBuffer(), type }); recMsg('נשמר.'); }
+        catch (e) { recMsg('ההקלטה תעבוד עד שתסגרו את המשחק, אבל לא נשמרה במכשיר.', true); }
+      }
+      renderRecList(); updateVoiceStatus();
+    };
+    mr.start();
+    this.timer = setTimeout(() => this.stop(), 8000);
+    renderRecList();
+  },
+  stop() { clearTimeout(this.timer); if (this.mr && this.mr.state !== 'inactive') this.mr.stop(); }
+};
+function recMsg(t, warn) { const el = $('#recMsg'); el.textContent = t; el.classList.toggle('warn', !!warn); }
+
+function renderRecList() {
+  const list = lineList();
+  const groups = [];
+  list.forEach(l => { let g = groups.find(x => x.name === l.group); if (!g) groups.push(g = { name: l.group, lines: [] }); g.lines.push(l); });
+  $('#recList').innerHTML = groups.map(g => `<div class="recgroup"><h4>${esc(g.name)}</h4>${g.lines.map(l => {
+    const has = S.recs.has(l.id), on = Rec.id === l.id;
+    return `<div class="recrow" data-id="${l.id}"><div class="txt">${esc(l.text)}${has ? '<span class="ok">הוקלט</span>' : ''}</div><div class="acts">
+      <button class="btn${on ? ' rec-on' : ''}" type="button" data-act="rec">${on ? 'עצירה' : 'הקלטה'}</button>
+      <button class="btn" type="button" data-act="play" ${has ? '' : 'disabled'}>השמעה</button>
+      <button class="btn" type="button" data-act="del" ${has ? '' : 'disabled'} aria-label="מחיקת ההקלטה">מחיקה</button></div></div>`;
+  }).join('')}</div>`).join('');
+}
+$('#recList').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = b.closest('.recrow').dataset.id;
+  const act = b.dataset.act;
+  if (act === 'rec') { if (Rec.id === id) Rec.stop(); else Rec.start(id); }
+  else if (act === 'play') { const blob = S.recs.get(id); if (blob) { if (S.stopCurrent) S.stopCurrent(); playBlob(blob); } }
+  else if (act === 'del') { S.recs.delete(id); try { await idb.del(id); } catch (err) {} recMsg('ההקלטה נמחקה.'); renderRecList(); updateVoiceStatus(); }
+});
+
+/* ---------- parent sheet ---------- */
+function updateVoiceStatus() {
+  const st = $('#voiceStatus');
+  const note = $('#voiceNote');
+  const noVoice = !('speechSynthesis' in window) || knownNoHebrew();
+  if (!('speechSynthesis' in window)) st.textContent = 'בדפדפן הזה אין הקראה. קוקו יכתוב בבועה.';
+  else if (S.heVoice) st.textContent = `קול עברי במכשיר: ${S.heVoice.name}`;
+  else if (S.voiceCount > 0) st.textContent = 'לא נמצא קול עברי במכשיר. קוקו יכתוב בבועה, ואפשר להקליט את הקול שלכם.';
+  else st.textContent = 'קוקו ינסה לדבר בקול המכשיר.';
+  st.classList.toggle('warn', noVoice);
+  note.hidden = !(noVoice && S.recs.size === 0);
+}
+function openSheet() {
+  stopAll();
+  $('#childName').value = S.name;
+  $('#rate').value = String(S.rate);
+  $('#recArea').hidden = EMBED || !Rec.supported();
+  $('#recEmbedNote').hidden = !EMBED && Rec.supported();
+  if (!EMBED && !Rec.supported()) $('#recEmbedNote').textContent = 'הדפדפן הזה לא תומך בהקלטת קול. קוקו ידבר בקול המכשיר.';
+  $('#installTip').hidden = EMBED;
+  if (!EMBED && Rec.supported()) renderRecList();
+  updateVoiceStatus();
+  $('#sheet').hidden = false;
+  $('#sheetClose').focus();
+}
+function closeSheet() { Rec.stop(); $('#sheet').hidden = true; }
+$('#sheetClose').addEventListener('click', closeSheet);
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+$('#childName').addEventListener('input', e => { S.name = e.target.value.trim().slice(0, 20); store.set('name', S.name); });
+$('#rate').addEventListener('input', e => { S.rate = Number(e.target.value) || 0.9; store.set('rate', S.rate); });
+$('#testVoice').addEventListener('click', () => { stopAll(); say('greet', greetText(), { koko: K.start, bubble: document.createElement('div') }); });
+
+/* ---------- wiring ---------- */
+$('#playBtn').addEventListener('click', () => startSession());
+holdable($('#parentBtnStart'), openSheet);
+holdable($('#parentBtnEnd'), openSheet);
+holdable($('#homeBtn'), exitToStart);
+holdable($('#againBtn'), () => startSession());
+
+document.addEventListener('contextmenu', e => { if (!e.target.closest('.sheet')) e.preventDefault(); });
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} }
+  else if (!$('#screen-game').hidden) requestWake();
+});
+
+initVoices();
+renderProgress();
+loadRecordings();
+updateVoiceStatus();
+
+if (!EMBED && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+
+window.__koko = { markup: kokoMarkup, ROUNDS, S, show, setScene, setMood, K };
+})();
+</script>
+</body>
+</html>
