@@ -5,10 +5,15 @@ name: Koko voice
 on:
   workflow_dispatch:
     inputs:
+      lang:
+        description: 'Language'
+        type: choice
+        options: [all, he, ru, en]
+        default: all
       voice:
-        description: 'Google TTS Hebrew voice (run with "list" to see them in the log)'
-        required: true
-        default: 'he-IL-Wavenet-D'
+        description: 'Voice name (empty = default male WaveNet voice; type "list" to see the voices in the log)'
+        required: false
+        default: ''
       rate:
         description: 'Speaking rate'
         required: true
@@ -31,22 +36,26 @@ jobs:
         if: ${{ inputs.voice == 'list' }}
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
-        run: python3 tools/make_audio.py --list
-      - name: Generate the voice pack
+          LANG_IN: ${{ inputs.lang }}
+        run: python3 tools/make_audio.py --lang "$LANG_IN" --list
+      - name: Generate the voice packs
         if: ${{ inputs.voice != 'list' }}
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          LANG_IN: ${{ inputs.lang }}
           VOICE: ${{ inputs.voice }}
           RATE: ${{ inputs.rate }}
-        run: python3 tools/make_audio.py --voice "$VOICE" --rate "$RATE"
+        run: |
+          if [ -n "$VOICE" ]; then python3 tools/make_audio.py --lang "$LANG_IN" --voice "$VOICE" --rate "$RATE";
+          else python3 tools/make_audio.py --lang "$LANG_IN" --rate "$RATE"; fi
       - name: Commit
         if: ${{ inputs.voice != 'list' }}
         env:
-          VOICE: ${{ inputs.voice }}
+          LANG_IN: ${{ inputs.lang }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add audio
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Koko voice pack: $VOICE"
+          git commit -m "Koko voice pack: $LANG_IN"
           git push

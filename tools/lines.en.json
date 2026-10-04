@@ -1,0 +1,442 @@
+[
+ {
+  "id": "greet",
+  "text": "Hi! I'm Koko the parrot. I mix things up... Will you help me?",
+  "spoken": "Hi! I'm Koko the parrot. I mix things up... Will you help me?"
+ },
+ {
+  "id": "r_animals",
+  "text": "Let's play with animals!",
+  "spoken": "Let's play with animals!"
+ },
+ {
+  "id": "a1_say",
+  "text": "The dog says... moo!",
+  "spoken": "The dog says... moo!"
+ },
+ {
+  "id": "a1_ask",
+  "text": "Who says moo?",
+  "spoken": "Who says moo?"
+ },
+ {
+  "id": "a1_yes",
+  "text": "Yes! The cow says moo! And the dog says woof woof!",
+  "spoken": "Yes! The cow says moo! And the dog says woof woof!"
+ },
+ {
+  "id": "a2_say",
+  "text": "The cat says... quack quack!",
+  "spoken": "The cat says... quack quack!"
+ },
+ {
+  "id": "a2_ask",
+  "text": "Who says quack quack?",
+  "spoken": "Who says quack quack?"
+ },
+ {
+  "id": "a2_yes",
+  "text": "Yes! The duck says quack quack! And the cat says meow!",
+  "spoken": "Yes! The duck says quack quack! And the cat says meow!"
+ },
+ {
+  "id": "a3_say",
+  "text": "The sheep says... meow!",
+  "spoken": "The sheep says... meow!"
+ },
+ {
+  "id": "a3_ask",
+  "text": "Who says meow?",
+  "spoken": "Who says meow?"
+ },
+ {
+  "id": "a3_yes",
+  "text": "Yes! The cat says meow! And the sheep says baa!",
+  "spoken": "Yes! The cat says meow! And the sheep says baa!"
+ },
+ {
+  "id": "a4_say",
+  "text": "The frog says... woof woof!",
+  "spoken": "The frog says... woof woof!"
+ },
+ {
+  "id": "a4_ask",
+  "text": "Who says woof woof?",
+  "spoken": "Who says woof woof?"
+ },
+ {
+  "id": "a4_yes",
+  "text": "Yes! The dog says woof woof! And the frog says ribbit!",
+  "spoken": "Yes! The dog says woof woof! And the frog says ribbit!"
+ },
+ {
+  "id": "a5_say",
+  "text": "The rooster says... baa!",
+  "spoken": "The rooster says... baa!"
+ },
+ {
+  "id": "a5_ask",
+  "text": "Who says baa?",
+  "spoken": "Who says baa?"
+ },
+ {
+  "id": "a5_yes",
+  "text": "Yes! The sheep says baa! And the rooster says cock-a-doodle-doo!",
+  "spoken": "Yes! The sheep says baa! And the rooster says cock-a-doodle-doo!"
+ },
+ {
+  "id": "a6_say",
+  "text": "The duck says... ribbit!",
+  "spoken": "The duck says... ribbit!"
+ },
+ {
+  "id": "a6_ask",
+  "text": "Who says ribbit?",
+  "spoken": "Who says ribbit?"
+ },
+ {
+  "id": "a6_yes",
+  "text": "Yes! The frog says ribbit! And the duck says quack quack!",
+  "spoken": "Yes! The frog says ribbit! And the duck says quack quack!"
+ },
+ {
+  "id": "a7_say",
+  "text": "The cow says... cock-a-doodle-doo!",
+  "spoken": "The cow says... cock-a-doodle-doo!"
+ },
+ {
+  "id": "a7_ask",
+  "text": "Who says cock-a-doodle-doo?",
+  "spoken": "Who says cock-a-doodle-doo?"
+ },
+ {
+  "id": "a7_yes",
+  "text": "Yes! The rooster says cock-a-doodle-doo! And the cow says moo!",
+  "spoken": "Yes! The rooster says cock-a-doodle-doo! And the cow says moo!"
+ },
+ {
+  "id": "talk_animals",
+  "text": "Your turn! Which animal do you like? What does it say?",
+  "spoken": "Your turn! Which animal do you like? What does it say?"
+ },
+ {
+  "id": "r_clothes",
+  "text": "Now I'm getting dressed!",
+  "spoken": "Now I'm getting dressed!"
+ },
+ {
+  "id": "c1_say",
+  "text": "I put my sock... on my head!",
+  "spoken": "I put my sock... on my head!"
+ },
+ {
+  "id": "c1_ask",
+  "text": "Where does a sock go?",
+  "spoken": "Where does a sock go?"
+ },
+ {
+  "id": "c1_yes",
+  "text": "Yes! A sock goes on your foot!",
+  "spoken": "Yes! A sock goes on your foot!"
+ },
+ {
+  "id": "c2_say",
+  "text": "I put my hat... on my foot!",
+  "spoken": "I put my hat... on my foot!"
+ },
+ {
+  "id": "c2_ask",
+  "text": "Where does a hat go?",
+  "spoken": "Where does a hat go?"
+ },
+ {
+  "id": "c2_yes",
+  "text": "Yes! A hat goes on your head!",
+  "spoken": "Yes! A hat goes on your head!"
+ },
+ {
+  "id": "c3_say",
+  "text": "I put my shoe... on my hand!",
+  "spoken": "I put my shoe... on my hand!"
+ },
+ {
+  "id": "c3_ask",
+  "text": "Where does a shoe go?",
+  "spoken": "Where does a shoe go?"
+ },
+ {
+  "id": "c3_yes",
+  "text": "Yes! A shoe goes on your foot!",
+  "spoken": "Yes! A shoe goes on your foot!"
+ },
+ {
+  "id": "c4_say",
+  "text": "I put my mitten... on my foot!",
+  "spoken": "I put my mitten... on my foot!"
+ },
+ {
+  "id": "c4_ask",
+  "text": "Where does a mitten go?",
+  "spoken": "Where does a mitten go?"
+ },
+ {
+  "id": "c4_yes",
+  "text": "Yes! A mitten goes on your hand!",
+  "spoken": "Yes! A mitten goes on your hand!"
+ },
+ {
+  "id": "c5_say",
+  "text": "I put my glasses... on my foot!",
+  "spoken": "I put my glasses... on my foot!"
+ },
+ {
+  "id": "c5_ask",
+  "text": "Where do glasses go?",
+  "spoken": "Where do glasses go?"
+ },
+ {
+  "id": "c5_yes",
+  "text": "Yes! Glasses go on your eyes!",
+  "spoken": "Yes! Glasses go on your eyes!"
+ },
+ {
+  "id": "talk_clothes",
+  "text": "Your turn! What are you wearing right now?",
+  "spoken": "Your turn! What are you wearing right now?"
+ },
+ {
+  "id": "r_home",
+  "text": "Now... things at home!",
+  "spoken": "Now... things at home!"
+ },
+ {
+  "id": "h1_say",
+  "text": "I brush my teeth... with a hairbrush!",
+  "spoken": "I brush my teeth... with a hairbrush!"
+ },
+ {
+  "id": "h1_ask",
+  "text": "What do we brush teeth with?",
+  "spoken": "What do we brush teeth with?"
+ },
+ {
+  "id": "h1_yes",
+  "text": "Yes! With a toothbrush! Brush, brush!",
+  "spoken": "Yes! With a toothbrush! Brush, brush!"
+ },
+ {
+  "id": "h2_say",
+  "text": "I drink water... from a shoe!",
+  "spoken": "I drink water... from a shoe!"
+ },
+ {
+  "id": "h2_ask",
+  "text": "What do we drink from?",
+  "spoken": "What do we drink from?"
+ },
+ {
+  "id": "h2_yes",
+  "text": "Yes! From a cup! Glug, glug!",
+  "spoken": "Yes! From a cup! Glug, glug!"
+ },
+ {
+  "id": "h3_say",
+  "text": "I eat my soup... with a fork!",
+  "spoken": "I eat my soup... with a fork!"
+ },
+ {
+  "id": "h3_ask",
+  "text": "What do we eat soup with?",
+  "spoken": "What do we eat soup with?"
+ },
+ {
+  "id": "h3_yes",
+  "text": "Yes! With a spoon! Yum!",
+  "spoken": "Yes! With a spoon! Yum!"
+ },
+ {
+  "id": "h4_say",
+  "text": "I go to sleep... in the bathtub!",
+  "spoken": "I go to sleep... in the bathtub!"
+ },
+ {
+  "id": "h4_ask",
+  "text": "Where do we sleep?",
+  "spoken": "Where do we sleep?"
+ },
+ {
+  "id": "h4_yes",
+  "text": "Yes! We sleep in a bed!",
+  "spoken": "Yes! We sleep in a bed!"
+ },
+ {
+  "id": "h5_say",
+  "text": "I wash my hands... with a banana!",
+  "spoken": "I wash my hands... with a banana!"
+ },
+ {
+  "id": "h5_ask",
+  "text": "What do we wash hands with?",
+  "spoken": "What do we wash hands with?"
+ },
+ {
+  "id": "h5_yes",
+  "text": "Yes! With soap! Bubbles!",
+  "spoken": "Yes! With soap! Bubbles!"
+ },
+ {
+  "id": "talk_home",
+  "text": "Your turn! What do you drink from?",
+  "spoken": "Your turn! What do you drink from?"
+ },
+ {
+  "id": "r_colors",
+  "text": "Let's play with colors!",
+  "spoken": "Let's play with colors!"
+ },
+ {
+  "id": "k1_say",
+  "text": "Look, a blue banana!",
+  "spoken": "Look, a blue banana!"
+ },
+ {
+  "id": "k1_ask",
+  "text": "What color is a banana?",
+  "spoken": "What color is a banana?"
+ },
+ {
+  "id": "k1_yes",
+  "text": "Yes! A banana is yellow!",
+  "spoken": "Yes! A banana is yellow!"
+ },
+ {
+  "id": "k2_say",
+  "text": "Look, a purple strawberry!",
+  "spoken": "Look, a purple strawberry!"
+ },
+ {
+  "id": "k2_ask",
+  "text": "What color is a strawberry?",
+  "spoken": "What color is a strawberry?"
+ },
+ {
+  "id": "k2_yes",
+  "text": "Yes! A strawberry is red!",
+  "spoken": "Yes! A strawberry is red!"
+ },
+ {
+  "id": "k3_say",
+  "text": "Look, a pink leaf!",
+  "spoken": "Look, a pink leaf!"
+ },
+ {
+  "id": "k3_ask",
+  "text": "What color is a leaf?",
+  "spoken": "What color is a leaf?"
+ },
+ {
+  "id": "k3_yes",
+  "text": "Yes! A leaf is green!",
+  "spoken": "Yes! A leaf is green!"
+ },
+ {
+  "id": "k4_say",
+  "text": "Look, a blue carrot!",
+  "spoken": "Look, a blue carrot!"
+ },
+ {
+  "id": "k4_ask",
+  "text": "What color is a carrot?",
+  "spoken": "What color is a carrot?"
+ },
+ {
+  "id": "k4_yes",
+  "text": "Yes! A carrot is orange!",
+  "spoken": "Yes! A carrot is orange!"
+ },
+ {
+  "id": "k5_say",
+  "text": "Look, green milk!",
+  "spoken": "Look, green milk!"
+ },
+ {
+  "id": "k5_ask",
+  "text": "What color is milk?",
+  "spoken": "What color is milk?"
+ },
+ {
+  "id": "k5_yes",
+  "text": "Yes! Milk is white!",
+  "spoken": "Yes! Milk is white!"
+ },
+ {
+  "id": "talk_colors",
+  "text": "Your turn! What's yellow in the room?",
+  "spoken": "Your turn! What's yellow in the room?"
+ },
+ {
+  "id": "mv_flap",
+  "text": "Time to move! Flap your wings like Koko!",
+  "spoken": "Time to move! Flap your wings like Koko!"
+ },
+ {
+  "id": "mv_jump",
+  "text": "Time to move! Jump like a frog!",
+  "spoken": "Time to move! Jump like a frog!"
+ },
+ {
+  "id": "mv_spin",
+  "text": "Time to move! Spin around and around!",
+  "spoken": "Time to move! Spin around and around!"
+ },
+ {
+  "id": "mv_stomp",
+  "text": "Time to move! Stomp like an elephant!",
+  "spoken": "Time to move! Stomp like an elephant!"
+ },
+ {
+  "id": "mv_tall",
+  "text": "Time to move! Stretch up tall, tall, tall!",
+  "spoken": "Time to move! Stretch up tall, tall, tall!"
+ },
+ {
+  "id": "mv_small",
+  "text": "Time to move! Make yourself small, small, small!",
+  "spoken": "Time to move! Make yourself small, small, small!"
+ },
+ {
+  "id": "mv_count",
+  "text": "One, two, three, four, five!",
+  "spoken": "One, two, three, four, five!"
+ },
+ {
+  "id": "mv_done",
+  "text": "Great moving! Let's keep playing.",
+  "spoken": "Great moving! Let's keep playing."
+ },
+ {
+  "id": "recall",
+  "text": "Now... do you remember?",
+  "spoken": "Now... do you remember?"
+ },
+ {
+  "id": "recall_yes",
+  "text": "Yes! You remembered!",
+  "spoken": "Yes! You remembered!"
+ },
+ {
+  "id": "oops",
+  "text": "Hmm... I don't think so.",
+  "spoken": "Hmm... I don't think so."
+ },
+ {
+  "id": "bye",
+  "text": "Thank you for helping me! Now go play together.",
+  "spoken": "Thank you for helping me! Now go play together."
+ },
+ {
+  "id": "end",
+  "text": "I'm sleepy... Good night!",
+  "spoken": "I'm sleepy... Good night!"
+ }
+]

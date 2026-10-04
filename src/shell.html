@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<!--HEAD-META-START-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<!--HEAD-META-END-->
+<title>קוקו התוכי</title>
+<!--PWA-START-->
+<meta name="description" content="קוקו מתבלבל, אתם מתקנים. משחק להורה וילד בגילאי 2–3, בעברית, ברוסית ובאנגלית. בלי פרסומות ובלי איסוף מידע.">
+<meta name="theme-color" content="#9EDCF2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="קוקו">
+<meta property="og:type" content="website">
+<meta property="og:title" content="קוקו התוכי · Попугай Коко · Koko the Parrot">
+<meta property="og:description" content="קוקו מתבלבל, אתם מתקנים. משחק להורה וילד בגילאי 2–3, בעברית, ברוסית ובאנגלית.">
+<meta property="og:image" content="https://stasikboss.github.io/koko/og.png">
+<!--PWA-END-->
+<style>
+/*STYLES*/
+</style>
+</head>
+<body>
+<div id="world" aria-hidden="true"></div>
+<div id="app" data-world="sky" dir="rtl" lang="he">
+
+  <section class="screen start" id="screen-start">
+    <div class="langs" id="langs" role="group" data-ta="langAria"></div>
+    <button class="hold corner" id="parentBtnStart" type="button" data-ta="parentAria">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-gear"/></svg>
+    </button>
+    <span class="hold-hint" data-t="holding"></span>
+    <div class="koko-slot bob" id="kokoStartSlot"></div>
+    <h1 class="title"><span class="t1" data-t="t1"></span> <span class="t2" data-t="t2"></span></h1>
+    <p class="tag" data-t="tag"></p>
+    <button class="play" id="playBtn" type="button" data-ta="play">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" fill="#fff"/></svg>
+    </button>
+    <p class="meta" id="meta"></p>
+    <p class="voice-note" id="voiceNote" data-t="noVoice" hidden></p>
+    <div class="rest" id="rest" hidden>
+      <h2 data-t="restTitle"></h2>
+      <p id="restText"></p>
+      <button class="pillhold" id="restHold" type="button"><span class="fill" aria-hidden="true"></span><span class="lbl" data-t="restHold"></span></button>
+    </div>
+  </section>
+
+  <section class="screen game" id="screen-game" data-n="2" hidden>
+    <div class="topbar">
+      <div class="progress" id="progress"></div>
+      <div class="chip" id="chip" hidden><svg viewBox="0 0 100 100" aria-hidden="true"><use id="chipIcon" href="#s-cow"/></svg><span id="chipText"></span></div>
+    </div>
+    <button class="hold corner" id="homeBtn" type="button" data-ta="homeAria">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-home"/></svg>
+    </button>
+    <span class="hold-hint" data-t="holding"></span>
+    <div class="stage">
+      <div class="bubble" id="bubble" aria-live="polite"></div>
+      <div class="scene" id="scene">
+        <div class="companions" id="companions"></div>
+        <div class="koko-slot" id="kokoGameSlot"></div>
+      </div>
+    </div>
+    <div class="options off locked" id="options"></div>
+    <div class="panel" id="panel" hidden>
+      <div class="ph"><svg viewBox="0 0 100 100" aria-hidden="true"><use id="panelIcon" href="#s-talk"/></svg><span id="panelTitle"></span></div>
+      <p id="panelText"></p>
+      <button class="go" id="panelGo" type="button"></button>
+    </div>
+  </section>
+
+  <section class="screen end" id="screen-end" hidden>
+    <button class="hold corner" id="parentBtnEnd" type="button" data-ta="parentAria">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#s-gear"/></svg>
+    </button>
+    <span class="hold-hint" data-t="holding"></span>
+    <div class="bubble" id="endBubble" aria-live="polite"></div>
+    <div class="koko-slot" id="kokoEndSlot"></div>
+    <h2 data-t="endTitle"></h2>
+    <div class="mission">
+      <p class="label" data-t="missionLabel"></p>
+      <h3 id="missionTitle"></h3>
+      <p id="missionText"></p>
+      <p class="why" data-t="missionWhy"></p>
+    </div>
+    <div class="words"><h4 data-t="words"></h4><div class="list" id="wordList"></div></div>
+    <p class="played" id="playedFor"></p>
+    <button class="pillhold" id="againBtn" type="button" data-ta="againAria"><span class="fill" aria-hidden="true"></span><span class="lbl" data-t="again"></span></button>
+  </section>
+
+  <div class="sheet-wrap" id="sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-head">
+        <h2 id="sheetTitle" data-t="sheet"></h2>
+        <button class="close-x" id="sheetClose" type="button" data-ta="close">×</button>
+      </div>
+      <div class="tabs" id="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="together" data-t="tabs.together"></button>
+        <button type="button" role="tab" data-tab="progress" data-t="tabs.progress"></button>
+        <button type="button" role="tab" data-tab="voice" data-t="tabs.voice"></button>
+        <button type="button" role="tab" data-tab="settings" data-t="tabs.settings"></button>
+      </div>
+      <div class="tabpanes">
+        <section data-pane="together">
+          <h3 data-t="howTitle"></h3>
+          <ol id="howList"></ol>
+          <h3 data-t="whyTitle"></h3>
+          <div class="why-list" id="whyList"></div>
+          <h3 data-t="privacyTitle"></h3>
+          <p data-t="privacy"></p>
+          <p class="muted" style="margin-top:8px" data-t="lockTip"></p>
+          <div id="installTip">
+            <h3 data-t="installTitle"></h3>
+            <p data-t="installIos"></p>
+            <p data-t="installAndroid"></p>
+            <p class="muted" style="margin-top:6px" data-t="installOffline"></p>
+          </div>
+          <p class="muted" style="margin-top:22px" data-t="footer"></p>
+        </section>
+        <section data-pane="progress" hidden>
+          <div class="stats" id="stats" style="margin-top:14px"></div>
+          <p class="muted" style="margin-top:8px" data-t="guideline"></p>
+          <h3 data-t="wordsTitle"></h3>
+          <div id="wordsPane"></div>
+          <div class="row" style="margin-top:20px"><button class="btn" id="resetBtn" type="button" data-t="reset"></button><span class="status" id="resetMsg" role="status"></span></div>
+        </section>
+        <section data-pane="voice" hidden>
+          <p class="status" id="voiceStatus" style="margin-top:14px"></p>
+          <div class="field" id="voiceField" hidden><label for="voiceSel" data-t="voiceLabel"></label><select id="voiceSel"></select></div>
+          <div class="field"><label for="rate" data-t="rateLabel"></label><input type="range" id="rate" min="0.6" max="1.2" step="0.05"></div>
+          <div class="row" style="margin-top:8px"><button class="btn" id="testVoice" type="button" data-t="test"></button></div>
+          <div id="voiceTips" style="margin-top:12px" hidden>
+            <p class="muted" data-t="tipsIntro"></p>
+            <p class="muted" style="margin-top:4px" data-t="tipIos"></p>
+            <p class="muted" style="margin-top:4px" data-t="tipAndroid"></p>
+            <p class="muted" style="margin-top:4px" data-t="tipRecord"></p>
+          </div>
+          <h3 data-t="recTitle"></h3>
+          <div id="recArea">
+            <p data-t="recIntro"></p>
+            <p class="status" id="recMsg" role="status"></p>
+            <div id="recList"></div>
+          </div>
+          <p id="recEmbedNote" hidden></p>
+        </section>
+        <section data-pane="settings" hidden>
+          <div class="field"><label for="childName" data-t="nameLabel"></label><input type="text" id="childName" maxlength="20" autocomplete="off"></div>
+          <div class="field"><label for="langSel" data-t="langLabel"></label><select id="langSel"></select></div>
+          <div class="field"><label for="lenSel" data-t="lengthLabel"></label><select id="lenSel"></select></div>
+          <div class="field"><label for="levelSel" data-t="levelLabel"></label><select id="levelSel"></select></div>
+          <div class="field"><label for="limitSel" data-t="limitLabel"></label><select id="limitSel"></select></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/*SCRIPTS*/
+</script>
+</body>
+</html>

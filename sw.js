@@ -1,5 +1,5 @@
 /* Koko the Parrot: offline cache. Bump VERSION whenever you change any file. */
-const VERSION = 'koko-v1.1';
+const VERSION = 'koko-v2.0';
 const ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,11 @@ const ASSETS = [
   './fonts/fredoka-latin-600-normal.woff2',
   './fonts/fredoka-latin-700-normal.woff2',
   './fonts/varela-round-hebrew-400-normal.woff2',
-  './fonts/varela-round-latin-400-normal.woff2'
+  './fonts/varela-round-latin-400-normal.woff2',
+  './fonts/nunito-cyrillic-600-normal.woff2',
+  './fonts/nunito-cyrillic-700-normal.woff2',
+  './fonts/nunito-cyrillic-800-normal.woff2',
+  './fonts/nunito-cyrillic-900-normal.woff2'
 ];
 
 self.addEventListener('install', event => {
@@ -36,7 +40,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   // The voice-pack list changes when a new voice is generated: network first, cache as fallback.
-  if (url.pathname.endsWith('/audio/manifest.json')) {
+  if (/\/audio\/[a-z]+\/manifest\.json$/.test(url.pathname)) {
     event.respondWith(
       fetch(req).then(res => {
         if (res && res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }

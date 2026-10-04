@@ -1,0 +1,5 @@
+{
+ "voice": "",
+ "note": "Empty until a voice pack is generated with tools/make_audio.py --lang ru. The game then uses the device voice.",
+ "files": {}
+}
