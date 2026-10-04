@@ -1,0 +1,121 @@
+/* ---------- Koko's rig ---------- */
+.koko{display:block;overflow:visible}
+.koko .act,.koko .breath,.koko .head,.koko .hb,.koko .crest,.koko .tail,.koko .wing,.koko .jaw,.koko .brow,.koko .pup,.koko .lid,.koko .feet,.koko .w{transform-box:view-box}
+.koko .act{transform-origin:200px 460px}
+.koko .breath{transform-origin:200px 460px;animation:k-breathe 3.6s ease-in-out infinite}
+@keyframes k-breathe{0%,100%{scale:1 1}50%{scale:1.008 1.018}}
+.koko .head{transform-origin:200px 262px;transition:transform .5s cubic-bezier(.3,1.25,.5,1)}
+.koko .hb{transform-origin:200px 262px;transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.koko .crest{transform-origin:206px 104px;animation:k-crest 3.2s ease-in-out infinite;transition:transform .4s ease}
+@keyframes k-crest{0%,100%{rotate:-2deg}50%{rotate:3deg}}
+.koko .tail{transform-origin:200px 402px;animation:k-tail 4.4s ease-in-out infinite}
+@keyframes k-tail{0%,100%{rotate:0deg}50%{rotate:3.5deg}}
+.koko .wing-l{transform-origin:134px 262px;transition:transform .55s cubic-bezier(.3,1.3,.5,1)}
+.koko .wing-r{transform-origin:266px 262px;transition:transform .55s cubic-bezier(.3,1.3,.5,1)}
+.koko .feet{transform-origin:200px 452px}
+.koko .pup{transition:transform .3s ease,scale .3s ease}
+.koko .eye-l .pup{transform-origin:162px 168px}.koko .eye-r .pup{transform-origin:238px 168px}
+.koko .lid{transform:scaleY(0);transition:transform .13s ease}
+.koko .lid-l{transform-origin:162px 137px}.koko .lid-r{transform-origin:238px 137px}
+.koko.blink .eye .lid,.koko[data-mood="sleep"] .lid{transform:scaleY(1)}
+.koko[data-mood="sad"] .lid{transform:scaleY(.42)}
+.koko[data-mood="sleepy"] .lid{transform:scaleY(.62)}
+.koko[data-mood="confused"] .lid-l{transform:scaleY(.34)}
+.koko .e-happy,.koko .e-shut,.koko .tear,.koko .zzz{display:none}
+.koko[data-mood="happy"] .e-open{display:none}.koko[data-mood="happy"] .e-happy{display:inline}
+.koko[data-mood="sleep"] .e-open{display:none}.koko[data-mood="sleep"] .e-shut{display:inline}
+.koko[data-mood="sad"] .tear{display:inline}
+.koko[data-mood="sleep"] .zzz,.koko[data-mood="sleepy"] .zzz{display:inline}
+.koko .brow{transition:transform .35s ease}
+.koko .brow-l{transform-origin:161px 122px}.koko .brow-r{transform-origin:239px 122px}
+.koko[data-mood="happy"] .brow{transform:translateY(-7px)}
+.koko[data-mood="wow"] .brow{transform:translateY(-14px)}
+.koko[data-mood="sad"] .brow-l{transform:translateY(6px) rotate(-16deg)}
+.koko[data-mood="sad"] .brow-r{transform:translateY(6px) rotate(16deg)}
+.koko[data-mood="confused"] .brow-l{transform:translateY(-14px) rotate(-8deg)}
+.koko[data-mood="confused"] .brow-r{transform:translateY(5px) rotate(-6deg)}
+.koko[data-mood="confused"] .hb{transform:rotate(-9deg)}
+.koko[data-mood="wow"] .hb{transform:translateY(-8px)}
+.koko[data-mood="sad"] .hb{transform:rotate(5deg) translateY(6px)}
+.koko[data-mood="sleep"] .hb{transform:rotate(7deg) translateY(8px)}
+.koko[data-mood="sleepy"] .hb{transform:rotate(5deg) translateY(4px)}
+.koko[data-mood="sleepy"] .brow{transform:translateY(5px)}
+.koko[data-mood="wow"] .crest{transform:scale(1.1) translateY(-6px)}
+.koko[data-mood="sad"] .crest,.koko[data-mood="sleep"] .crest,.koko[data-mood="sleepy"] .crest{transform:rotate(16deg) translateY(8px)}
+.koko[data-mood="wow"] .pup{scale:.68}
+.koko[data-mood="sad"] .pup{translate:0 6px}
+.koko .qmarks{opacity:0;transition:opacity .3s}
+.koko[data-mood="confused"] .qmarks{opacity:1}
+.koko .zzz text{animation:k-zz 2.4s ease-in-out infinite}
+.koko .zzz text:nth-child(2){animation-delay:.4s}.koko .zzz text:nth-child(3){animation-delay:.8s}
+@keyframes k-zz{0%,100%{opacity:.25}50%{opacity:1}}
+/* talking */
+.koko.talking .jaw{animation:k-jaw .72s linear infinite}
+@keyframes k-jaw{0%{translate:0 0}12%{translate:0 10px}28%{translate:0 3px}44%{translate:0 12px}60%{translate:0 2px}78%{translate:0 9px}100%{translate:0 0}}
+.koko.talking .hb{animation:k-bob .9s ease-in-out infinite}
+@keyframes k-bob{0%,100%{translate:0 0}50%{translate:0 -4px}}
+/* acts */
+.koko[data-mood="happy"] .act{animation:k-hop .62s cubic-bezier(.3,.7,.4,1)}
+@keyframes k-hop{0%,100%{transform:none}20%{transform:translateY(6px) scale(1.04,.94)}50%{transform:translateY(-34px) scale(.97,1.05)}80%{transform:translateY(3px) scale(1.03,.97)}}
+.koko[data-act="flyin"] .act{animation:k-flyin 1.15s cubic-bezier(.2,.8,.3,1) both}
+.koko[data-act="flyin"] .wing-l,.koko[data-act="flap"] .wing-l{animation:k-flapL .2s ease-in-out infinite alternate}
+.koko[data-act="flyin"] .wing-r,.koko[data-act="flap"] .wing-r{animation:k-flapR .2s ease-in-out infinite alternate}
+@keyframes k-flyin{0%{transform:translate(-380px,-320px) rotate(-16deg) scale(.5);opacity:0}25%{opacity:1}100%{transform:none}}
+@keyframes k-flapL{from{transform:rotate(0)}to{transform:rotate(62deg)}}
+@keyframes k-flapR{from{transform:rotate(0)}to{transform:rotate(-62deg)}}
+.koko[data-act="flap"] .act{animation:k-bobup .4s ease-in-out infinite alternate}
+@keyframes k-bobup{from{transform:none}to{transform:translateY(-14px)}}
+.koko[data-act="jump"] .act{animation:k-jump .66s cubic-bezier(.3,.7,.4,1) infinite}
+@keyframes k-jump{0%,100%{transform:none}14%{transform:translateY(8px) scale(1.06,.9)}50%{transform:translateY(-80px) scale(.96,1.06)}86%{transform:translateY(0) scale(1.04,.95)}}
+.koko[data-act="spin"] .act{animation:k-spin 1.1s ease-in-out infinite}
+@keyframes k-spin{0%,100%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+.koko[data-act="stomp"] .act{animation:k-stomp .52s ease-in-out infinite alternate}
+@keyframes k-stomp{from{transform:rotate(-6deg) translateY(4px)}to{transform:rotate(6deg) translateY(-8px)}}
+.koko[data-act="tall"] .act{animation:k-tall 1.4s ease-in-out infinite alternate}
+.koko[data-act="tall"] .wing-l{transform:rotate(128deg)}.koko[data-act="tall"] .wing-r{transform:rotate(-128deg)}
+@keyframes k-tall{from{transform:none}to{transform:translateY(-16px) scale(.96,1.14)}}
+.koko[data-act="small"] .act{animation:k-small 1.4s ease-in-out infinite alternate}
+@keyframes k-small{from{transform:none}to{transform:translateY(30px) scale(.74)}}
+.koko[data-act="listen"] .hb{transform:rotate(11deg)}
+.koko[data-act="listen"] .wing-l{transform:rotate(34deg)}
+.koko[data-act="hop"] .act{animation:k-hop .62s cubic-bezier(.3,.7,.4,1)}
+.koko[data-act="hug"] .wing-l{transform:rotate(-38deg)}
+.koko[data-act="hug"] .wing-r{transform:rotate(38deg)}
+.koko[data-act="hug"] .act{animation:k-squeeze 1.3s ease-in-out}
+@keyframes k-squeeze{0%,100%{transform:none}40%,70%{transform:scale(.96,1.03)}}
+.koko[data-act="yawn"] .jaw{animation:k-yawn 1.8s ease-in-out}
+.koko[data-act="yawn"] .hb{animation:k-yawnh 1.8s ease-in-out}
+@keyframes k-yawn{0%,100%{translate:0 0}30%,70%{translate:0 20px}}
+@keyframes k-yawnh{0%,100%{translate:0 0}30%,70%{translate:0 -6px}}
+.koko[data-act="yawn"] .wing-l{transform:rotate(48deg)}.koko[data-act="yawn"] .wing-r{transform:rotate(-48deg)}
+/* the body round: the part Koko is talking about moves */
+.koko.wig-feet .feet{animation:k-stompf .26s ease-in-out 4 alternate}
+@keyframes k-stompf{from{transform:none}to{transform:translateY(-14px)}}
+.koko.wig-eyes .lid{animation:k-blink2 .5s ease-in-out 2}
+@keyframes k-blink2{0%,100%{transform:scaleY(0)}45%,55%{transform:scaleY(1)}}
+.koko.wig-tail .tail{animation:k-wag .3s ease-in-out 4 alternate}
+@keyframes k-wag{from{rotate:-7deg}to{rotate:9deg}}
+.koko.wig-wings .wing-l{animation:k-flapL .22s ease-in-out 4 alternate}
+.koko.wig-wings .wing-r{animation:k-flapR .22s ease-in-out 4 alternate}
+.koko.wig-head .hb{animation:k-nod .34s ease-in-out 4 alternate}
+@keyframes k-nod{from{translate:0 0}to{translate:0 10px}}
+/* tap targets on Koko (body round) */
+.koko .zones{display:none}
+.koko.zoning .zones{display:inline}
+.koko .zone{fill:transparent;stroke:none;pointer-events:none}
+.koko .zone.on{pointer-events:all;cursor:pointer;fill:rgba(255,255,255,.14);stroke:#fff;stroke-width:6;stroke-dasharray:16 12;stroke-linecap:round;stroke-opacity:.95;filter:drop-shadow(0 0 3px rgba(34,48,92,.45));animation:k-ring 2s ease-in-out infinite}
+.koko .zone.show{stroke:#FFC93C;stroke-width:6;stroke-dasharray:none;stroke-opacity:1;animation:none}
+.koko .zone.hint{stroke:#FF9F1C;stroke-width:9;stroke-dasharray:none;animation:k-ring .9s ease-in-out infinite}
+.koko .zone.right{stroke:#2DB36F;stroke-width:8;stroke-dasharray:none;stroke-opacity:1;animation:none}
+.koko .zone.gone{display:none}
+.koko.locked .zone{pointer-events:none}
+@keyframes k-ring{0%,100%{stroke-opacity:.95}50%{stroke-opacity:.3}}
+/* worn and held things */
+.koko .w{transform-origin:0 0;transition:transform .9s cubic-bezier(.45,1.35,.5,1),opacity .35s ease}
+.koko .w.out{opacity:0}
+.koko .w.pop{animation:k-wpop .45s ease}
+@keyframes k-wpop{from{opacity:0}to{opacity:1}}
+.koko .w.away{transition:transform 2.6s cubic-bezier(.4,0,.6,1),opacity 2.6s ease}
+.koko .w.drop{transition:transform .55s cubic-bezier(.55,0,1,.45)}
+.koko .w.use{animation:k-use .26s ease-in-out 5 alternate}
+@keyframes k-use{from{translate:0 0}to{translate:7px -6px}}

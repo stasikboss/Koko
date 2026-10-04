@@ -375,6 +375,331 @@
   "spoken": "Your turn! What's yellow in the room?"
  },
  {
+  "id": "r_food",
+  "text": "The animals are hungry! Let's feed them!",
+  "spoken": "The animals are hungry! Let's feed them!"
+ },
+ {
+  "id": "f1_say",
+  "text": "The dog is hungry... I'll give him a carrot!",
+  "spoken": "The dog is hungry... I'll give him a carrot!"
+ },
+ {
+  "id": "f1_ask",
+  "text": "What does the dog eat?",
+  "spoken": "What does the dog eat?"
+ },
+ {
+  "id": "f1_yes",
+  "text": "Yes! The dog eats a bone! Yum!",
+  "spoken": "Yes! The dog eats a bone! Yum!"
+ },
+ {
+  "id": "f2_say",
+  "text": "The rabbit is hungry... I'll give him a bone!",
+  "spoken": "The rabbit is hungry... I'll give him a bone!"
+ },
+ {
+  "id": "f2_ask",
+  "text": "What does the rabbit eat?",
+  "spoken": "What does the rabbit eat?"
+ },
+ {
+  "id": "f2_yes",
+  "text": "Yes! The rabbit eats a carrot! Crunch, crunch!",
+  "spoken": "Yes! The rabbit eats a carrot! Crunch, crunch!"
+ },
+ {
+  "id": "f3_say",
+  "text": "The monkey is hungry... I'll give him a fish!",
+  "spoken": "The monkey is hungry... I'll give him a fish!"
+ },
+ {
+  "id": "f3_ask",
+  "text": "What does the monkey eat?",
+  "spoken": "What does the monkey eat?"
+ },
+ {
+  "id": "f3_yes",
+  "text": "Yes! The monkey eats a banana! Yum!",
+  "spoken": "Yes! The monkey eats a banana! Yum!"
+ },
+ {
+  "id": "f4_say",
+  "text": "The mouse is hungry... I'll give him a banana!",
+  "spoken": "The mouse is hungry... I'll give him a banana!"
+ },
+ {
+  "id": "f4_ask",
+  "text": "What does the mouse eat?",
+  "spoken": "What does the mouse eat?"
+ },
+ {
+  "id": "f4_yes",
+  "text": "Yes! The mouse eats cheese! Nibble, nibble!",
+  "spoken": "Yes! The mouse eats cheese! Nibble, nibble!"
+ },
+ {
+  "id": "f5_say",
+  "text": "The cat is hungry... I'll give him cheese!",
+  "spoken": "The cat is hungry... I'll give him cheese!"
+ },
+ {
+  "id": "f5_ask",
+  "text": "What does the cat eat?",
+  "spoken": "What does the cat eat?"
+ },
+ {
+  "id": "f5_yes",
+  "text": "Yes! The cat eats a fish! Yum!",
+  "spoken": "Yes! The cat eats a fish! Yum!"
+ },
+ {
+  "id": "talk_food",
+  "text": "Your turn! What do you like to eat?",
+  "spoken": "Your turn! What do you like to eat?"
+ },
+ {
+  "id": "r_vehicles",
+  "text": "Let's play with things that go!",
+  "spoken": "Let's play with things that go!"
+ },
+ {
+  "id": "v1_say",
+  "text": "The train goes... beep beep!",
+  "spoken": "The train goes... beep beep!"
+ },
+ {
+  "id": "v1_ask",
+  "text": "What goes beep beep?",
+  "spoken": "What goes beep beep?"
+ },
+ {
+  "id": "v1_yes",
+  "text": "Yes! The car goes beep beep! And the train goes choo choo!",
+  "spoken": "Yes! The car goes beep beep! And the train goes choo choo!"
+ },
+ {
+  "id": "v2_say",
+  "text": "The car goes... choo choo!",
+  "spoken": "The car goes... choo choo!"
+ },
+ {
+  "id": "v2_ask",
+  "text": "What goes choo choo?",
+  "spoken": "What goes choo choo?"
+ },
+ {
+  "id": "v2_yes",
+  "text": "Yes! The train goes choo choo! And the car goes beep beep!",
+  "spoken": "Yes! The train goes choo choo! And the car goes beep beep!"
+ },
+ {
+  "id": "v3_say",
+  "text": "The boat goes... ding ding!",
+  "spoken": "The boat goes... ding ding!"
+ },
+ {
+  "id": "v3_ask",
+  "text": "What goes ding ding?",
+  "spoken": "What goes ding ding?"
+ },
+ {
+  "id": "v3_yes",
+  "text": "Yes! The bike goes ding ding! And the boat goes toot toot!",
+  "spoken": "Yes! The bike goes ding ding! And the boat goes toot toot!"
+ },
+ {
+  "id": "v4_say",
+  "text": "The bike goes... toot toot!",
+  "spoken": "The bike goes... toot toot!"
+ },
+ {
+  "id": "v4_ask",
+  "text": "What goes toot toot?",
+  "spoken": "What goes toot toot?"
+ },
+ {
+  "id": "v4_yes",
+  "text": "Yes! The boat goes toot toot! And the bike goes ding ding!",
+  "spoken": "Yes! The boat goes toot toot! And the bike goes ding ding!"
+ },
+ {
+  "id": "talk_vehicles",
+  "text": "Your turn! What does a car say? And a train?",
+  "spoken": "Your turn! What does a car say? And a train?"
+ },
+ {
+  "id": "r_feelings",
+  "text": "Now... how does Koko feel?",
+  "spoken": "Now... how does Koko feel?"
+ },
+ {
+  "id": "e1_say",
+  "text": "I got a balloon! I feel... sleepy!",
+  "spoken": "I got a balloon! I feel... sleepy!"
+ },
+ {
+  "id": "e1_ask",
+  "text": "How does Koko feel?",
+  "spoken": "How does Koko feel?"
+ },
+ {
+  "id": "e1_yes",
+  "text": "Yes! Koko feels happy! Happy!",
+  "spoken": "Yes! Koko feels happy! Happy!"
+ },
+ {
+  "id": "e2_say",
+  "text": "My balloon flew away... I feel... happy!",
+  "spoken": "My balloon flew away... I feel... happy!"
+ },
+ {
+  "id": "e2_ask",
+  "text": "How does Koko feel?",
+  "spoken": "How does Koko feel?"
+ },
+ {
+  "id": "e2_yes",
+  "text": "Yes! Koko feels sad. A hug will help!",
+  "spoken": "Yes! Koko feels sad. A hug will help!"
+ },
+ {
+  "id": "e3_say",
+  "text": "I got ice cream! I feel... sad!",
+  "spoken": "I got ice cream! I feel... sad!"
+ },
+ {
+  "id": "e3_ask",
+  "text": "How does Koko feel?",
+  "spoken": "How does Koko feel?"
+ },
+ {
+  "id": "e3_yes",
+  "text": "Yes! Koko feels happy! Ice cream is fun!",
+  "spoken": "Yes! Koko feels happy! Ice cream is fun!"
+ },
+ {
+  "id": "e4_say",
+  "text": "My ice cream fell... I feel... happy!",
+  "spoken": "My ice cream fell... I feel... happy!"
+ },
+ {
+  "id": "e4_ask",
+  "text": "How does Koko feel?",
+  "spoken": "How does Koko feel?"
+ },
+ {
+  "id": "e4_yes",
+  "text": "Yes! Koko feels sad. Let's give Koko a hug!",
+  "spoken": "Yes! Koko feels sad. Let's give Koko a hug!"
+ },
+ {
+  "id": "e5_say",
+  "text": "I'm yawning... I feel... happy!",
+  "spoken": "I'm yawning... I feel... happy!"
+ },
+ {
+  "id": "e5_ask",
+  "text": "How does Koko feel?",
+  "spoken": "How does Koko feel?"
+ },
+ {
+  "id": "e5_yes",
+  "text": "Yes! Koko feels sleepy. Let's yawn together!",
+  "spoken": "Yes! Koko feels sleepy. Let's yawn together!"
+ },
+ {
+  "id": "talk_feelings",
+  "text": "Your turn! Show me a happy face... Now a sad face!",
+  "spoken": "Your turn! Show me a happy face... Now a sad face!"
+ },
+ {
+  "id": "r_body",
+  "text": "New game: touch Koko!",
+  "spoken": "New game: touch Koko!"
+ },
+ {
+  "id": "part_feet",
+  "text": "Here are my feet!",
+  "spoken": "Here are my feet!"
+ },
+ {
+  "id": "part_eyes",
+  "text": "Here are my eyes!",
+  "spoken": "Here are my eyes!"
+ },
+ {
+  "id": "part_tail",
+  "text": "Here is my tail!",
+  "spoken": "Here is my tail!"
+ },
+ {
+  "id": "part_wings",
+  "text": "Here are my wings!",
+  "spoken": "Here are my wings!"
+ },
+ {
+  "id": "part_head",
+  "text": "Here is my head!",
+  "spoken": "Here is my head!"
+ },
+ {
+  "id": "b1_ask",
+  "text": "Where are Koko's feet?",
+  "spoken": "Where are Koko's feet?"
+ },
+ {
+  "id": "b1_yes",
+  "text": "Yes! Here are the feet! Stomp, stomp!",
+  "spoken": "Yes! Here are the feet! Stomp, stomp!"
+ },
+ {
+  "id": "b2_ask",
+  "text": "Where are Koko's eyes?",
+  "spoken": "Where are Koko's eyes?"
+ },
+ {
+  "id": "b2_yes",
+  "text": "Yes! Here are the eyes! Blink, blink!",
+  "spoken": "Yes! Here are the eyes! Blink, blink!"
+ },
+ {
+  "id": "b3_ask",
+  "text": "Where is Koko's tail?",
+  "spoken": "Where is Koko's tail?"
+ },
+ {
+  "id": "b3_yes",
+  "text": "Yes! Here is the tail! Wiggle, wiggle!",
+  "spoken": "Yes! Here is the tail! Wiggle, wiggle!"
+ },
+ {
+  "id": "b4_ask",
+  "text": "Where are Koko's wings?",
+  "spoken": "Where are Koko's wings?"
+ },
+ {
+  "id": "b4_yes",
+  "text": "Yes! Here are the wings! Flap, flap!",
+  "spoken": "Yes! Here are the wings! Flap, flap!"
+ },
+ {
+  "id": "b5_ask",
+  "text": "Where is Koko's head?",
+  "spoken": "Where is Koko's head?"
+ },
+ {
+  "id": "b5_yes",
+  "text": "Yes! Here is the head! Nod, nod!",
+  "spoken": "Yes! Here is the head! Nod, nod!"
+ },
+ {
+  "id": "talk_body",
+  "text": "Your turn! Where are your feet? Where are your eyes?",
+  "spoken": "Your turn! Where are your feet? Where are your eyes?"
+ },
+ {
   "id": "mv_flap",
   "text": "Time to move! Flap your wings like Koko!",
   "spoken": "Time to move! Flap your wings like Koko!"

@@ -1,5 +1,5 @@
 /* Koko the Parrot: offline cache. Bump VERSION whenever you change any file. */
-const VERSION = 'koko-v2.0';
+const VERSION = 'koko-v3.0';
 const ASSETS = [
   './',
   './index.html',

@@ -1,4 +1,4 @@
-/* Koko app logic. Concatenated after content.js and art.js inside one closure by tools/build.py. */
+/* Koko app logic. Concatenated after content, paint, symbols, koko, worlds and sfx inside one closure by tools/build.py. */
 
 /* ---------- basics ---------- */
 const EMBED = !!window.KOKO_EMBED;
@@ -17,10 +17,10 @@ const store = {
 };
 function todayKey(off = 0) { const d = new Date(); d.setDate(d.getDate() + off); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 
-document.body.insertAdjacentHTML('afterbegin', SPRITE);
+document.body.insertAdjacentHTML('afterbegin', spriteMarkup());
 
 /* ---------- settings and language ---------- */
-const SET = Object.assign({ name: '', length: 'long', level: 'auto', limit: 0, rate: 0.92 }, store.get('set', {}));
+const SET = Object.assign({ name: '', length: 'long', level: 'auto', limit: 0, rate: 0.92, sfx: true }, store.get('set', {}));
 if (!store.get('set', null)) {                       // carry over settings from version 1
   const n = store.get('name', ''); if (n) SET.name = n;
   const r = Number(store.get('rate', 0)); if (r) SET.rate = r;
@@ -64,7 +64,12 @@ function planSession() {
   const L = Learn.L(LANG);
   const nR = SET.length === 'short' ? 2 : 3;
   const lastPlayed = c => (L.cats[c.id] && L.cats[c.id].last != null ? L.cats[c.id].last : -1);
-  const cats = shuffle(CATS.slice()).sort((a, b) => lastPlayed(a) - lastPlayed(b)).slice(0, nR);
+  const order = shuffle(CATS.slice()).sort((a, b) => lastPlayed(a) - lastPlayed(b));
+  let cats = [];
+  for (const c of order) if (cats.length < nR && !cats.some(x => x.kind === c.kind)) cats.push(c);   // not two "who says" rounds in one game
+  for (const c of order) if (cats.length < nR && !cats.includes(c)) cats.push(c);
+  const pinned = window.__kokoTest && window.__kokoTest.cats;
+  if (pinned) cats = pinned.map(catById);
   // Priority: missed last time > new > still practicing > known (older first). Shuffle first so ties stay random.
   const pri = it => {
     const s = L.items[it.id];
@@ -73,8 +78,9 @@ function planSession() {
     if (s.streak < 2) return 2;
     return L.sessions - s.last > 2 ? 3 : 4;
   };
-  const rounds = cats.map(c => ({ cat: c, items: shuffle(shuffle(c.items.map(i => Object.assign({ cat: c.id }, i))).sort((a, b) => pri(a) - pri(b)).slice(0, 3)) }));
-  return { rounds, moveAfter: nR === 3 ? 1 : 0, move: MOVES[(L.sessions + Math.floor(Math.random() * 3)) % MOVES.length], played: [] };
+  const per = (window.__kokoTest && window.__kokoTest.per) || 3;
+  const rounds = cats.map(c => ({ cat: c, items: shuffle(shuffle(c.items.map(i => withCat(c, i))).sort((a, b) => pri(a) - pri(b)).slice(0, per)) }));
+  return { rounds, moveAfter: cats.length === 3 ? 1 : 0, move: MOVES[(L.sessions + Math.floor(Math.random() * 3)) % MOVES.length], played: [] };
 }
 function optionCount(item) {
   if (SET.level === 'easy') return 2;
@@ -85,7 +91,7 @@ function optionCount(item) {
 /* ---------- state ---------- */
 const S = {
   token: 0, accepting: false, onPick: null, cancelWait: null, stopCurrent: null,
-  recs: new Map(), ttsBroken: 0, startedAt: 0, done: 0, total: 0, wake: null, clock: 0, plan: null, lastBlob: null
+  recs: new Map(), ttsBroken: 0, startedAt: 0, done: 0, total: 0, wake: null, clock: 0, plan: null, lastBlob: null, busyWing: null
 };
 const alive = tok => tok === S.token;
 
@@ -109,11 +115,71 @@ function setTint(c) { $('#app').style.setProperty('--tint', c || '#FFE6B3'); }
 /* ---------- Koko ---------- */
 function mountKoko(slotId) { const slot = document.getElementById(slotId); slot.innerHTML = kokoMarkup(); return slot.firstElementChild; }
 const K = { start: mountKoko('kokoStartSlot'), game: mountKoko('kokoGameSlot'), end: mountKoko('kokoEndSlot') };
+const P = KOKO.place;
+const FEEL_MOOD = { happy: 'happy', sad: 'sad', sleepy: 'sleepy' };
 const setMood = (k, m) => { k.dataset.mood = m; };
-function setAct(k, act) { if (act) k.dataset.act = act; else delete k.dataset.act; }
+function setAct(k, act) { if (act) { Rig.rest(k); k.dataset.act = act; } else delete k.dataset.act; }
+
+/* Koko's rig: where he looks, what he points at. Toddlers learn which thing a new word names by
+   following the speaker's eyes, so Koko looks (and points) at whatever he is talking about. */
+const Rig = {
+  toKoko(k, x, y) { const m = k.getScreenCTM && k.getScreenCTM(); if (!m) return null; const p = k.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m.inverse()); },
+  toScreen(k, x, y) { const m = k.getScreenCTM && k.getScreenCTM(); if (!m) return null; const p = k.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); },
+  center(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; },
+  gazeK(k, q) {
+    const pups = k.querySelectorAll('.pup'), head = k.querySelector('.head');
+    if (!q) { pups.forEach(p => { p.style.transform = ''; }); head.style.transform = ''; return; }
+    const dx = q.x - KOKO.head[0], dy = q.y - KOKO.head[1], d = Math.hypot(dx, dy) || 1, r = Math.min(9, d / 22);
+    pups.forEach(p => { p.style.transform = `translate(${(dx / d * r).toFixed(1)}px, ${(dy / d * r * 0.85).toFixed(1)}px)`; });
+    head.style.transform = `rotate(${Math.max(-6, Math.min(6, dx / 45)).toFixed(1)}deg)`;
+  },
+  /* target: an element, a screen point {x, y}, a point in Koko's own drawing {kx, ky}, or null = look at the child */
+  look(k, target) {
+    if (!target) return this.gazeK(k, null);
+    let q;
+    if (target.kx != null) q = { x: target.kx, y: target.ky };
+    else { const c = target.getBoundingClientRect ? this.center(target) : target; q = this.toKoko(k, c.x, c.y); }
+    if (q) this.gazeK(k, q);
+  },
+  /* point a wing at a target on screen; busy = the wing ('l' or 'r') that is holding something */
+  point(k, target, busy) {
+    const c = target.getBoundingClientRect ? this.center(target) : target, q = this.toKoko(k, c.x, c.y);
+    if (!q) return;
+    const right = q.x >= 200;
+    if ((right && busy === 'r') || (!right && busy === 'l')) return;
+    const [sx, sy] = right ? KOKO.shoulderR : KOKO.shoulderL;
+    let rot = Math.atan2(q.y - sy, q.x - sx) * 180 / Math.PI - (right ? KOKO.restR : KOKO.restL);
+    while (rot > 180) rot -= 360;
+    while (rot < -180) rot += 360;
+    rot = right ? Math.max(-150, Math.min(15, rot)) : Math.max(-15, Math.min(150, rot));
+    k.querySelector(right ? '.wing-r' : '.wing-l').style.transform = `rotate(${rot.toFixed(1)}deg)`;
+  },
+  rest(k) { this.gazeK(k, null); k.querySelectorAll('.wing').forEach(w => { w.style.transform = ''; }); },
+  /* the part Koko names moves: feet stomp, eyes blink, tail wags, wings flap, head nods */
+  wiggle(k, part) {
+    const c = 'wig-' + part;
+    k.classList.remove(c); void k.getBoundingClientRect(); k.classList.add(c);
+    clearTimeout(k['_w' + part]); k['_w' + part] = setTimeout(() => k.classList.remove(c), 1500);
+  }
+};
 setInterval(() => {
-  $$('.koko[data-mood="idle"]').forEach(k => { if (Math.random() < 0.6) { k.classList.add('blink'); setTimeout(() => k.classList.remove('blink'), 170); } });
-}, 2600);
+  $$('.koko').forEach(k => {
+    const m = k.dataset.mood;
+    if (m === 'happy' || m === 'sleep' || k.closest('[hidden]') || Math.random() > 0.6) return;
+    k.classList.add('blink'); setTimeout(() => k.classList.remove('blink'), 160);
+  });
+}, 2500);
+/* On the start screen Koko glances around, and looks wherever a finger touches. */
+let glanceHold = 0;
+setInterval(() => {
+  if ($('#screen-start').hidden || Date.now() < glanceHold || K.start.dataset.mood === 'sleep') return;
+  const r = Math.random();
+  Rig.look(K.start, r < 0.35 ? $('#playBtn') : r < 0.6 ? null : { kx: 200 + (Math.random() * 2 - 1) * 260, ky: 60 + Math.random() * 260 });
+}, 3200);
+$('#screen-start').addEventListener('pointerdown', e => {
+  if (K.start.dataset.mood === 'sleep') return;
+  glanceHold = Date.now() + 2500; Rig.look(K.start, { x: e.clientX, y: e.clientY });
+});
 
 const wTf = p => `translate(${p.x}px, ${p.y}px) rotate(${p.r || 0}deg) scale(${p.s / 100})`;
 function wearAdd(key, sym, p, o = {}) {
@@ -122,8 +188,6 @@ function wearAdd(key, sym, p, o = {}) {
   g.setAttribute('class', 'w' + (o.pop ? ' pop' : ''));
   g.dataset.k = key;
   g.style.transform = wTf(p);
-  const col = o.color || SYM_COLOR[sym];
-  if (col) g.style.color = col;
   g.innerHTML = `<use href="#${sym}" x="-50" y="-50" width="100" height="100"/>`;
   layer.appendChild(g);
   return g;
@@ -131,12 +195,12 @@ function wearAdd(key, sym, p, o = {}) {
 const wearGet = key => K.game.querySelector(`.w[data-k="${key}"]`);
 function wearClear() { K.game.querySelector('.wear').innerHTML = ''; K.game.querySelector('.wear-back').innerHTML = ''; }
 function kokoRect(p) {
-  const svg = K.game, m = svg.getScreenCTM && svg.getScreenCTM();
-  if (!m) return null;
-  const pt = svg.createSVGPoint(); pt.x = p.x; pt.y = p.y;
-  const c = pt.matrixTransform(m), size = p.s * Math.abs(m.a);
+  const c = Rig.toScreen(K.game, p.x, p.y), m = K.game.getScreenCTM && K.game.getScreenCTM();
+  if (!c || !m) return null;
+  const size = p.s * Math.abs(m.a);
   return { left: c.x - size / 2, top: c.y - size / 2, width: size, height: size };
 }
+const kpt = p => ({ kx: p.x, ky: p.y });
 
 /* ---------- screens ---------- */
 function show(name) { ['start', 'game', 'end'].forEach(n => { $('#screen-' + n).hidden = n !== name; }); }
@@ -309,14 +373,13 @@ function setChip(cat) {
   const chip = $('#chip');
   if (!cat) { chip.hidden = true; return; }
   $('#chipIcon').setAttribute('href', '#' + cat.icon);
-  $('#chipIcon').parentNode.style.color = SYM_COLOR[cat.icon] || '';
   $('#chipText').textContent = U().cat[cat.id];
   chip.hidden = false;
 }
 function showBadge(sym, title) {
   const b = document.createElement('div');
   b.className = 'badge';
-  b.innerHTML = `<div class="disc"><svg viewBox="0 0 100 100" style="color:${SYM_COLOR[sym] || ''}"><use href="#${sym}"/></svg><b>${esc(title)}</b></div>`;
+  b.innerHTML = `<div class="disc"><svg viewBox="0 0 100 100"><use href="#${sym}"/></svg><b>${esc(title)}</b></div>`;
   document.body.appendChild(b);
   setTimeout(() => b.remove(), Math.max(400, T(1900)));
 }
@@ -329,28 +392,49 @@ function showCount(n, total) {
     }, (i - 1) * total / n);
   }
 }
-function mateHTML(sym, key, cls = '') { return `<div class="mate ${cls}" data-k="${key}"><svg class="pic" viewBox="0 0 100 100" style="color:${SYM_COLOR[sym] || ''}"><use href="#${sym}"/></svg><span class="snd"></span></div>`; }
+const VEHICLES = new Set(['car', 'train', 'boat', 'bike']);
+function mateHTML(sym, key, cls = '') { return `<div class="mate ${cls}" data-k="${key}"><svg class="pic" viewBox="0 0 100 100"><use href="#${sym}"/></svg><span class="snd"></span></div>`; }
 function setMates(html) { matesEl.innerHTML = html || ''; matesEl.classList.remove('two'); $('#scene').classList.toggle('duo', !!html); }
+const firstMate = () => matesEl.querySelector('.mate');
+/* which side of Koko the companions stand on (it flips with right-to-left languages) */
+function mateSide() { const m = firstMate(); if (!m) return null; return Rig.center(m).x < Rig.center(K.game).x ? 'l' : 'r'; }
 
-function renderOptions(item, n) {
+/* Answers are picture cards, or (body round) glowing rings on Koko himself. */
+let zoneMode = false;
+function renderAnswers(item, n) {
   const opts = shuffle(itemOptions(LANG, item, n));
+  S.accepting = false;
+  if (item.kind === 'touch') {
+    zoneMode = true;
+    optionsEl.innerHTML = ''; optionsEl.hidden = false; optionsEl.classList.add('off', 'locked'); panelEl.hidden = true;
+    K.game.classList.add('zoning', 'locked');
+    $$('.zone', K.game).forEach(z => { z.setAttribute('class', 'zone'); delete z.dataset.correct; delete z.dataset.key; });
+    opts.forEach(o => $$(`.zone[data-zone="${o.key}"]`, K.game).forEach(z => { z.classList.add('on'); z.dataset.correct = o.correct ? '1' : '0'; z.dataset.key = o.key; z.setAttribute('aria-label', o.label); }));
+    return;
+  }
+  zoneMode = false;
   $('#screen-game').dataset.n = String(opts.length);
-  optionsEl.innerHTML = opts.map(o => {
-    const col = o.color || SYM_COLOR[o.sym] || '';
-    return `<button class="opt" type="button" data-correct="${o.correct ? 1 : 0}" data-key="${esc(o.key)}" data-sym="${o.sym}" ${col ? `data-color="${col}"` : ''} aria-label="${esc(o.label)}"><span class="plate"><svg viewBox="0 0 100 100" aria-hidden="true" style="color:${col}"><use href="#${o.sym}"/></svg></span><span>${esc(o.label)}</span></button>`;
-  }).join('');
+  optionsEl.innerHTML = opts.map(o => `<button class="opt" type="button" data-correct="${o.correct ? 1 : 0}" data-key="${esc(o.key)}" aria-label="${esc(o.label)}"><span class="plate"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${o.sym}"/></svg></span><span class="lbl">${esc(o.label)}</span></button>`).join('');
   optionsEl.hidden = false; panelEl.hidden = true;
   optionsEl.classList.remove('off');
   optionsEl.classList.add('locked', 'waiting');
-  S.accepting = false;
 }
-function hideOptions() { S.accepting = false; optionsEl.hidden = false; optionsEl.classList.add('off', 'locked'); optionsEl.classList.remove('waiting'); }
-function lockOptions() { S.accepting = false; optionsEl.classList.add('locked'); }
-function unlockOptions() { optionsEl.classList.remove('locked', 'waiting'); S.accepting = true; }
-function hint() { const b = optionsEl.querySelector('.opt[data-correct="1"]'); if (b) b.classList.add('hint'); }
-function pick(btn) { if (!S.accepting || !S.onPick || !btn || btn.classList.contains('gone')) return; S.onPick(btn); }
+function clearZones() {
+  zoneMode = false;
+  K.game.classList.remove('zoning', 'locked');
+  $$('.zone', K.game).forEach(z => { z.setAttribute('class', 'zone'); delete z.dataset.correct; delete z.dataset.key; });
+}
+function showZone(part) { K.game.classList.add('zoning'); $$(`.zone[data-zone="${part}"]`, K.game).forEach(z => z.classList.add('show')); }
+function hideOptions() { S.accepting = false; clearZones(); optionsEl.hidden = false; optionsEl.classList.add('off', 'locked'); optionsEl.classList.remove('waiting'); }
+function lockOptions() { S.accepting = false; optionsEl.classList.add('locked'); K.game.classList.add('locked'); }
+function unlockOptions() { optionsEl.classList.remove('locked', 'waiting'); K.game.classList.remove('locked'); S.accepting = true; }
+const answerEls = () => (zoneMode ? $$('.zone.on', K.game) : $$('.opt', optionsEl));
+function hint() { answerEls().forEach(b => { if (b.dataset.correct === '1') b.classList.add('hint'); }); }
+function pick(el) { if (!S.accepting || !S.onPick || !el || el.classList.contains('gone')) return; sfx('tap'); S.onPick(el); }
 optionsEl.addEventListener('pointerdown', e => { if (e.isPrimary === false) return; pick(e.target.closest('.opt')); });
 optionsEl.addEventListener('click', e => { if (e.detail === 0) pick(e.target.closest('.opt')); });
+K.game.addEventListener('pointerdown', e => { if (e.isPrimary === false) return; pick(e.target.closest && e.target.closest('.zone.on')); });
+K.game.addEventListener('click', e => { if (e.detail === 0) pick(e.target.closest && e.target.closest('.zone.on')); });
 
 function showPanel(sym, title, text, goLabel) {
   hideOptions(); optionsEl.hidden = true;
@@ -371,13 +455,14 @@ function waitPanelGo(tok) {
   });
 }
 
-/* Scaffolded answer: wrong → Koko asks again; with three cards the wrong one leaves; after two misses or a long pause the answer glows. */
+const baseMood = item => (item.kind === 'feel' ? FEEL_MOOD[item.right] : 'idle');
+/* Scaffolded answer: wrong → Koko asks again; with three answers the wrong one leaves; after two misses or a long pause the answer glows. */
 function waitForCorrect(item, tok, ask) {
   return new Promise(resolve => {
     let wrongs = 0, idles = 0, idleTimer = null, settled = false;
-    const done = btn => { if (settled) return; settled = true; clearTimeout(idleTimer); S.onPick = null; S.cancelWait = null; resolve({ first: wrongs === 0, btn }); };
+    const done = el => { if (settled) return; settled = true; clearTimeout(idleTimer); S.onPick = null; S.cancelWait = null; resolve({ first: wrongs === 0, btn: el }); };
     const arm = () => { clearTimeout(idleTimer); idleTimer = setTimeout(onIdle, T(IDLE_MS)); };
-    const reask = async () => { setMood(K.game, 'idle'); await say(item.id + '_ask', ask); };
+    const reask = async () => { setMood(K.game, baseMood(item)); lookAtAnswers(); await say(item.id + '_ask', ask); Rig.look(K.game, null); };
     async function onIdle() {
       if (!alive(tok) || settled) return done(null);
       idles++;
@@ -387,19 +472,27 @@ function waitForCorrect(item, tok, ask) {
       if (idles >= 2) hint();
       unlockOptions(); arm();
     }
-    S.onPick = async btn => {
+    S.onPick = async el => {
       lockOptions(); clearTimeout(idleTimer);
-      if (btn.dataset.correct === '1') {
-        btn.classList.remove('hint'); btn.classList.add('right');
-        $$('.opt', optionsEl).forEach(o => { if (o !== btn) o.classList.add('fade'); });
-        return done(btn);
+      if (!zoneMode) Rig.look(K.game, el);
+      if (el.dataset.correct === '1') {
+        el.classList.remove('hint'); el.classList.add('right');
+        if (zoneMode) $$('.zone.on', K.game).forEach(z => { z.classList.remove('hint'); z.classList.add(z.dataset.correct === '1' ? 'right' : 'gone'); });
+        else $$('.opt', optionsEl).forEach(o => { if (o !== el) o.classList.add('fade'); });
+        return done(el);
       }
       wrongs++;
-      const remaining = $$('.opt:not(.gone)', optionsEl).length;
-      if (remaining > 2) btn.classList.add('gone');
-      else { btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); }
-      setMood(K.game, 'wow');
-      await say('oops', SAY[LANG].oops);
+      const left = zoneMode ? new Set($$('.zone.on:not(.gone)', K.game).map(z => z.dataset.key)).size : $$('.opt:not(.gone)', optionsEl).length;
+      if (left > 2) (zoneMode ? $$(`.zone[data-key="${el.dataset.key}"]`, K.game) : [el]).forEach(x => x.classList.add('gone'));
+      else if (!zoneMode) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+      if (item.kind === 'touch') {      // name the part the child touched, and move it
+        const part = el.dataset.key;
+        Rig.wiggle(K.game, part); sfx(PART_SFX[part]);
+        await say('part_' + part, SAY[LANG]['part_' + part]);
+      } else {
+        if (item.kind !== 'feel') setMood(K.game, 'wow');
+        await say('oops', SAY[LANG].oops);
+      }
       if (!alive(tok) || settled) return done(null);
       await reask();
       if (!alive(tok) || settled) return done(null);
@@ -410,17 +503,19 @@ function waitForCorrect(item, tok, ask) {
     unlockOptions(); arm();
   });
 }
+function lookAtAnswers() { Rig.rest(K.game); if (!zoneMode) Rig.look(K.game, optionsEl); }
 
 /* A picture leaves the card and travels to where it belongs. */
-function flyIcon(fromEl, sym, color, to) {
+function flyIcon(fromEl, sym, to) {
   return new Promise(res => {
     if (!fromEl || !to) return res();
     const r = fromEl.getBoundingClientRect();
     const d = document.createElement('div');
     d.className = 'flyer';
-    Object.assign(d.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', color: color || '' });
+    Object.assign(d.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
     d.innerHTML = `<svg viewBox="0 0 100 100"><use href="#${sym}"/></svg>`;
     document.body.appendChild(d);
+    sfx('whoosh');
     const dx = to.left + to.width / 2 - (r.left + r.width / 2), dy = to.top + to.height / 2 - (r.top + r.height / 2), sc = to.width / Math.max(1, r.width);
     let fin = false; const end = () => { if (fin) return; fin = true; d.remove(); res(); };
     try {
@@ -428,47 +523,156 @@ function flyIcon(fromEl, sym, color, to) {
         { transform: 'translate(0,0) scale(1)' },
         { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 90}px) scale(${(1 + sc) / 2 + 0.15}) rotate(-8deg)`, offset: 0.5 },
         { transform: `translate(${dx}px, ${dy}px) scale(${sc})` }
-      ], { duration: T(700), easing: 'ease-in-out', fill: 'forwards' });
+      ], { duration: T(760), easing: 'ease-in-out', fill: 'forwards' });
       a.onfinish = end;
     } catch (e) { end(); }
-    setTimeout(end, T(700) + 250);
+    setTimeout(end, T(760) + 250);
   });
 }
+const rectOf = el => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; };
 
-/* ---------- one question ---------- */
-function setupItem(item) {
-  wearClear(); setMates('');
-  if (item.cat === 'animals') setMates(mateHTML(SYM[item.show], item.show, 'enter'));
-  else if (item.cat === 'clothes') wearAdd(item.thing, SYM[item.thing], PLACE[item.thing][item.wrong]);
-  else if (item.cat === 'home') {
-    if (item.prop) wearAdd('prop', SYM[item.prop], PLACE[item.prop]);
-    wearAdd('held', SYM[item.wrong], PLACE[item.at]);
-  } else if (item.cat === 'colors') wearAdd('held', SYM[item.thing], PLACE.wing, { color: COLORS[item.wrong] });
+/* ---------- one question, staged by kind ---------- */
+async function setupItem(item, tok) {
+  wearClear(); setMates(''); S.busyWing = null;
+  switch (item.kind) {
+    case 'sound': setMates(mateHTML(SYM[item.show], item.show, 'enter' + (VEHICLES.has(item.show) ? ' drive' : ''))); sfx('pop'); break;
+    case 'wear': wearAdd(item.thing, SYM[item.thing], P[item.thing][item.wrong], { pop: true }); sfx('pop'); break;
+    case 'use':
+      if (item.prop) wearAdd('prop', SYM[item.prop], P[item.prop]);
+      wearAdd('held', SYM[item.wrong], P[item.at], { pop: true }); sfx('pop'); break;
+    case 'color': wearAdd('held', `s-${item.thing}--${item.wrong}`, P.wing, { pop: true }); sfx('pop'); break;
+    case 'feed': {
+      setMates(mateHTML(SYM[item.animal], item.animal, 'enter'));
+      S.busyWing = mateSide() === 'r' ? 'l' : 'r';           // hold the food on the far wing, point with the near one
+      wearAdd('held', SYM[item.wrong], S.busyWing === 'r' ? P.wing : P.wingL, { pop: true }); sfx('pop'); break;
+    }
+    case 'feel': {
+      if (!item.prop) break;
+      setMood(K.game, 'happy');
+      const g = wearAdd('prop', SYM[item.prop], item.prop === 'balloon' ? P.balloon : P.wing, { pop: true });
+      sfx('pop');
+      if (!item.event) break;
+      Rig.look(K.game, kpt(item.prop === 'balloon' ? P.balloon : P.wing));
+      await wait(T(1100)); if (!alive(tok)) return;
+      if (item.event === 'away') {
+        g.classList.add('away'); g.style.transform = wTf(Object.assign({}, P.balloon, { x: P.balloon.x + 80, y: -720, r: 18 }));
+        sfx('slide'); Rig.look(K.game, { kx: 380, ky: -200 });
+        await wait(T(1500));
+      } else {
+        g.classList.add('drop'); g.style.transform = wTf(Object.assign({}, P.ground, { r: 30 }));
+        Rig.look(K.game, kpt(P.ground));
+        await wait(T(560)); if (!alive(tok)) return;
+        g.classList.remove('drop'); g.querySelector('use').setAttribute('href', '#s-splat'); g.style.transform = wTf(P.ground);
+        sfx('splat');
+        await wait(T(700));
+      }
+      break;
+    }
+  }
 }
-async function resolveItem(item, btn) {
-  const plate = btn && btn.querySelector('.plate svg');
-  if (item.cat === 'animals') {
-    const ph = document.createElement('div'); ph.className = 'mate'; ph.style.visibility = 'hidden'; matesEl.appendChild(ph); matesEl.classList.add('two');
-    await flyIcon(plate, SYM[item.target], '', ph.getBoundingClientRect());
-    ph.remove();
-    matesEl.insertAdjacentHTML('beforeend', mateHTML(SYM[item.target], item.target, 'enter'));
-  } else if (item.cat === 'clothes') {
-    const g = wearGet(item.thing); if (g) g.style.transform = wTf(PLACE[item.thing][item.right]);
-    await wait(T(500));
-  } else if (item.cat === 'home') {
-    const old = wearGet('held'), p = PLACE[item.at];
-    if (old) old.classList.add('out');
-    await flyIcon(plate, SYM[item.right], SYM_COLOR[SYM[item.right]], kokoRect(p));
-    if (old) old.remove();
-    wearAdd('held', SYM[item.right], p, { back: item.right === 'bed', pop: true });
-  } else if (item.cat === 'colors') {
-    const g = wearGet('held'); if (g) g.style.color = COLORS[item.right];
-    await wait(T(500));
+/* While Koko says his mix-up he looks (and points) at what he is talking about. */
+function mixupGesture(item) {
+  const k = K.game;
+  switch (item.kind) {
+    case 'sound': case 'feed': { const m = firstMate(); if (m) { Rig.look(k, m); Rig.point(k, m, S.busyWing); } break; }
+    case 'wear': Rig.look(k, kpt(P[item.thing][item.wrong])); break;
+    case 'use': Rig.look(k, kpt(P[item.at])); break;
+    case 'color': Rig.look(k, kpt(P.wing)); break;
+    case 'feel':
+      if (item.event === 'away') Rig.look(k, { kx: 380, ky: -200 });
+      else if (item.event === 'fall') Rig.look(k, kpt(P.ground));
+      else if (item.prop) Rig.look(k, kpt(item.prop === 'balloon' ? P.balloon : P.wing));
+      else setAct(k, 'yawn');
+      break;
+    case 'touch': Rig.wiggle(k, item.wrong); showZone(item.wrong); sfx(PART_SFX[item.wrong]); break;
+  }
+}
+async function afterMixup(item, tok) {
+  if (item.kind === 'feed') {                     // the animal does not want it
+    const m = firstMate(); if (m) { m.classList.remove('enter'); m.classList.add('nope'); }
+    await wait(T(800));
+  }
+  if (item.kind === 'touch') clearZones();
+  if (item.kind === 'feel' && !item.prop) setAct(K.game, null);
+}
+async function resolveItem(item, btn, tok) {
+  const plate = btn && btn.querySelector && btn.querySelector('.plate svg');
+  switch (item.kind) {
+    case 'sound': {
+      const ph = document.createElement('div'); ph.className = 'mate'; ph.style.visibility = 'hidden'; matesEl.appendChild(ph); matesEl.classList.add('two');
+      await flyIcon(plate, SYM[item.target], rectOf(ph)); if (!alive(tok)) return;
+      ph.remove();
+      const veh = VEHICLES.has(item.target);
+      matesEl.insertAdjacentHTML('beforeend', mateHTML(SYM[item.target], item.target, 'enter' + (veh ? ' toot' : '')));
+      Rig.look(K.game, matesEl.lastElementChild);
+      if (veh) { sfx(item.target, 250); await wait(T(1300)); } else { sfx('pop'); await wait(T(300)); }
+      break;
+    }
+    case 'wear': {
+      const g = wearGet(item.thing), to = P[item.thing][item.right];
+      if (g) g.style.transform = wTf(to);
+      sfx('whoosh'); Rig.look(K.game, kpt(to));
+      await wait(T(800)); sfx('land'); await wait(T(150));
+      break;
+    }
+    case 'use': {
+      const old = wearGet('held'), p = P[item.at];
+      if (old) old.classList.add('out');
+      Rig.look(K.game, kpt(p));
+      await flyIcon(plate, SYM[item.right], kokoRect(p)); if (!alive(tok)) return;
+      if (old) old.remove();
+      const g = wearAdd('held', SYM[item.right], p, { back: item.right === 'bed', pop: true });
+      sfx('land');
+      if (USE_SFX[item.right]) { g.classList.add('use'); sfx(USE_SFX[item.right], 120); await wait(T(1000)); }
+      if (item.right === 'bed') { setAct(K.game, 'yawn'); await wait(T(1200)); setAct(K.game, null); }
+      break;
+    }
+    case 'color': {
+      const old = wearGet('held');
+      const g = wearAdd('held-new', `s-${item.thing}--${item.right}`, P.wing, { pop: true });
+      if (old) old.classList.add('out');
+      sfx('swish'); Rig.look(K.game, kpt(P.wing));
+      await wait(T(600)); if (old) old.remove(); g.dataset.k = 'held';
+      break;
+    }
+    case 'feed': {
+      const old = wearGet('held'), m = firstMate();
+      if (old) old.classList.add('out');
+      if (m) {
+        m.classList.remove('nope');
+        const r = m.getBoundingClientRect(), mouth = { left: r.left + r.width * 0.22, top: r.top + r.height * 0.22, width: r.width * 0.5, height: r.width * 0.5 };
+        Rig.look(K.game, m);
+        await flyIcon(plate, SYM[item.right], mouth); if (!alive(tok)) return;
+        m.classList.add('chomp'); sfx('chomp');
+        await wait(T(900));
+      }
+      break;
+    }
+    case 'feel':
+      if (item.right === 'happy') setAct(K.game, 'hop');
+      await wait(T(500)); setAct(K.game, null);
+      break;
+    case 'touch':
+      Rig.wiggle(K.game, item.right); sfx(PART_SFX[item.right]);
+      await wait(T(700));
+      break;
+  }
+}
+function duringYes(item) {
+  if (item.kind === 'touch') { Rig.wiggle(K.game, item.right); sfx(PART_SFX[item.right], 400); }
+}
+async function afterYes(item, tok) {
+  if (item.kind === 'feel' && item.right === 'sad') {          // a hug, and Koko feels better
+    setAct(K.game, 'hug'); await wait(T(1500)); if (!alive(tok)) return;
+    setAct(K.game, null); setMood(K.game, 'happy'); await wait(T(800));
+  } else if (item.kind === 'feel' && item.right === 'sleepy') {
+    setAct(K.game, 'yawn'); await wait(T(1800)); if (!alive(tok)) return;
+    setAct(K.game, null);
   }
 }
 function soundBubbles(item, tok) {
-  if (item.cat !== 'animals') return;
-  const A = ANIMAL[LANG], put = (k, delay) => setTimeout(() => {
+  if (item.kind !== 'sound') return;
+  const A = SOUND[LANG], put = (k, delay) => setTimeout(() => {
     if (!alive(tok)) return;
     const s = matesEl.querySelector(`.mate[data-k="${k}"] .snd`);
     if (s) { s.textContent = A[k][2]; s.classList.add('on'); }
@@ -477,16 +681,27 @@ function soundBubbles(item, tok) {
 }
 async function playItem(item, tok) {
   const lines = itemLines(LANG, item);
-  hideOptions(); setupItem(item); setMood(K.game, 'confused');
-  await say(item.id + '_say', lines[0]); if (!alive(tok)) return;
-  renderOptions(item, optionCount(item)); setMood(K.game, 'idle');
+  S.item = item; S.phase = 'setup';
+  hideOptions(); Rig.rest(K.game); setAct(K.game, null);
+  $('#screen-game').classList.toggle('touch', item.kind === 'touch');
+  await setupItem(item, tok); if (!alive(tok)) return;
+  S.phase = 'mix';
+  setMood(K.game, item.kind === 'feel' ? FEEL_MOOD[item.right] : 'confused');
+  mixupGesture(item);
+  await say(sayId(item), lines[0]); if (!alive(tok)) return;
+  await afterMixup(item, tok); if (!alive(tok)) return;
+  renderAnswers(item, optionCount(item)); setMood(K.game, baseMood(item));
+  lookAtAnswers(); S.phase = 'ask';
   await say(item.id + '_ask', lines[1]); if (!alive(tok)) return;
+  Rig.look(K.game, null);
   const res = await waitForCorrect(item, tok, lines[1]); if (!alive(tok)) return;
   Learn.record(LANG, item.id, res.first);
-  S.plan.played.push({ item, first: res.first });
-  await resolveItem(item, res.btn); if (!alive(tok)) return;
-  setMood(K.game, 'happy'); soundBubbles(item, tok);
+  S.plan.played.push({ item, first: res.first }); S.phase = 'resolve';
+  await resolveItem(item, res.btn, tok); if (!alive(tok)) return;
+  if (item.kind !== 'feel') setMood(K.game, 'happy');
+  Rig.look(K.game, null); soundBubbles(item, tok); duringYes(item); S.phase = 'yes';
   await say(item.id + '_yes', lines[2]); if (!alive(tok)) return;
+  await afterYes(item, tok); if (!alive(tok)) return;
   S.done++; renderProgress();
   await wait(T(500));
 }
@@ -495,6 +710,7 @@ async function playItem(item, tok) {
 function greetText() { return SET.name ? SAY[LANG].greetName(SET.name) : SAY[LANG].greet; }
 function clockStart() { S.clock = Date.now(); }
 function clockStop() { if (S.clock) { Learn.addMs(Date.now() - S.clock); S.clock = 0; } }
+function resetStage() { setMates(''); wearClear(); hideOptions(); Rig.rest(K.game); setAct(K.game, null); $('#screen-game').classList.remove('touch'); }
 
 async function startSession() {
   stopAll();
@@ -503,20 +719,25 @@ async function startSession() {
   const plan = S.plan;
   S.startedAt = Date.now(); S.done = 0;
   S.total = plan.rounds.reduce((n, r) => n + r.items.length, 0) + 2;
-  renderProgress(); setChip(null); setMates(''); wearClear(); hideOptions(); panelEl.hidden = true; optionsEl.innerHTML = '';
+  renderProgress(); setChip(null); resetStage(); panelEl.hidden = true; optionsEl.innerHTML = '';
   $('#bubble').textContent = '';
   setWorld(plan.rounds[0].cat.world); setTint(plan.rounds[0].cat.tint);
   setMood(K.game, 'idle'); setAct(K.game, 'flyin');
   show('game');
   AE.unlock(); primeTTS(); requestWake(); clockStart();
+  sfx('flutter', 80);
   const ids = ['greet', 'oops', 'recall', 'recall_yes', 'bye', 'end', 'mv_' + plan.move, 'mv_count', 'mv_done'];
-  plan.rounds.forEach(r => { ids.push('r_' + r.cat.id, 'talk_' + r.cat.id); r.items.forEach(it => ids.push(it.id + '_say', it.id + '_ask', it.id + '_yes')); });
+  plan.rounds.forEach(r => {
+    ids.push('r_' + r.cat.id, 'talk_' + r.cat.id);
+    if (r.cat.kind === 'touch') PARTS.forEach(p => ids.push('part_' + p));
+    r.items.forEach(it => ids.push(sayId(it), it.id + '_ask', it.id + '_yes'));
+  });
   preloadPack(ids);
   setTimeout(() => { if (alive(tok)) setAct(K.game, null); }, Math.max(300, T(1200)));
   await say('greet', greetText(), { plain: SAY[LANG].greet }); if (!alive(tok)) return;
   for (let i = 0; i < plan.rounds.length; i++) {
     const r = plan.rounds[i];
-    setWorld(r.cat.world); setTint(r.cat.tint); setChip(r.cat); setMates(''); wearClear(); hideOptions(); setMood(K.game, 'idle');
+    setWorld(r.cat.world); setTint(r.cat.tint); setChip(r.cat); resetStage(); setMood(K.game, 'idle');
     showBadge(r.cat.icon, U().cat[r.cat.id]);
     await say('r_' + r.cat.id, SAY[LANG]['r_' + r.cat.id]); if (!alive(tok)) return;
     for (const item of r.items) { await playItem(item, tok); if (!alive(tok)) return; }
@@ -524,14 +745,14 @@ async function startSession() {
     if (i === plan.moveAfter && plan.rounds.length > 1) { await moveBreak(plan.move, tok); if (!alive(tok)) return; }
   }
   await recall(plan, tok); if (!alive(tok)) return;
-  setMates(''); wearClear(); hideOptions(); setChip(null); setMood(K.game, 'happy');
+  resetStage(); setChip(null); setMood(K.game, 'happy');
   await say('bye', SAY[LANG].bye); if (!alive(tok)) return;
   await wait(T(500)); if (!alive(tok)) return;
   finish(plan, tok);
 }
 
 async function talkTime(cat, tok) {
-  setMates(''); wearClear(); setMood(K.game, 'idle');
+  resetStage(); setMood(K.game, 'idle');
   showPanel('s-talk', U().talkTitle, U().talkTip[cat.id], U().cont);
   await say('talk_' + cat.id, SAY[LANG]['talk_' + cat.id]); if (!alive(tok)) return;
   setAct(K.game, 'listen');
@@ -540,8 +761,8 @@ async function talkTime(cat, tok) {
 }
 
 async function moveBreak(move, tok) {
-  setMates(''); wearClear(); setChip(null); setWorld('meadow'); setTint('#E4F7D9'); setMood(K.game, 'happy');
-  showPanel('s-foot', U().moveTitle, U().moveTip, null);
+  resetStage(); setChip(null); setWorld('meadow'); setTint('#E6F6DA'); setMood(K.game, 'happy');
+  showPanel('s-move', U().moveTitle, U().moveTip, null);
   await say('mv_' + move, SAY[LANG]['mv_' + move]); if (!alive(tok)) return;
   setMood(K.game, 'idle'); setAct(K.game, move);
   const counting = say('mv_count', SAY[LANG].mv_count);
@@ -554,6 +775,10 @@ async function moveBreak(move, tok) {
 }
 
 /* Spaced retrieval: a short "do you remember?" from earlier in the game, missed words first. */
+function recallCue(item) {
+  if (item.kind === 'wear') setMates(mateHTML(SYM[item.thing], item.thing, 'cue enter'));
+  else if (item.kind === 'feed') setMates(mateHTML(SYM[item.animal], item.animal, 'enter'));
+}
 async function recall(plan, tok) {
   const missed = plan.played.filter(p => !p.first).map(p => p.item);
   const rest = shuffle(plan.played.filter(p => p.first).map(p => p.item));
@@ -561,17 +786,19 @@ async function recall(plan, tok) {
   for (const it of cand) { if (picks.length >= 2) break; if (!picks.some(p => p.cat === it.cat)) picks.push(it); }
   for (const it of cand) { if (picks.length >= 2) break; if (!picks.includes(it)) picks.push(it); }
   if (!picks.length) return;
-  setChip(null); setMates(''); wearClear(); hideOptions(); setWorld('sky'); setTint('#FFF0C2'); setMood(K.game, 'idle');
+  setChip(null); resetStage(); setWorld('sky'); setTint('#FFF0C2'); setMood(K.game, 'idle');
   showBadge('s-think', U().recallTitle);
   await say('recall', SAY[LANG].recall); if (!alive(tok)) return;
   for (const item of picks) {
     const lines = itemLines(LANG, item);
-    setMates(item.cat === 'clothes' ? mateHTML(SYM[item.thing], item.thing, 'cue enter') : '');
-    wearClear(); hideOptions();
-    renderOptions(item, 2); setMood(K.game, 'idle');
+    resetStage(); recallCue(item); $('#screen-game').classList.toggle('touch', item.kind === 'touch');
+    renderAnswers(item, 2); setMood(K.game, baseMood(item));
+    lookAtAnswers();
     await say(item.id + '_ask', lines[1]); if (!alive(tok)) return;
+    Rig.look(K.game, null);
     const res = await waitForCorrect(item, tok, lines[1]); if (!alive(tok)) return;
     Learn.record(LANG, item.id, res.first);
+    if (item.kind === 'touch') { Rig.wiggle(K.game, item.right); sfx(PART_SFX[item.right]); }
     setMood(K.game, 'happy');
     await say('recall_yes', SAY[LANG].recall_yes); if (!alive(tok)) return;
     S.done++; renderProgress();
@@ -594,16 +821,16 @@ function finish(plan, tok) {
   const seen = new Set();
   $('#wordList').innerHTML = plan.played.filter(p => !seen.has(p.item.id) && seen.add(p.item.id)).map(p => {
     const w = itemWord(LANG, p.item);
-    return `<span class="wchip"><svg viewBox="0 0 100 100" aria-hidden="true" style="color:${w.color || SYM_COLOR[w.sym] || ''}"><use href="#${w.sym}"/></svg>${esc(w.label)}</span>`;
+    return `<span class="wchip"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${w.sym}"/></svg>${esc(w.label)}</span>`;
   }).join('');
   const mins = Math.max(1, Math.round((Date.now() - S.startedAt) / 60000));
   $('#playedFor').textContent = U().played(mins);
   $('#endBubble').textContent = '';
-  setWorld('night'); setMood(K.end, 'idle'); show('end');
+  setWorld('night'); setMood(K.end, 'sleepy'); show('end');
   say('end', SAY[LANG].end, { koko: K.end, bubble: $('#endBubble') }).then(() => { if (alive(tok)) setMood(K.end, 'sleep'); });
 }
 
-function exitToStart() { stopAll(); clockStop(); releaseWake(); panelEl.hidden = true; renderStart(); show('start'); }
+function exitToStart() { stopAll(); clockStop(); releaseWake(); panelEl.hidden = true; resetStage(); renderStart(); show('start'); }
 
 /* ---------- wake lock ---------- */
 async function requestWake() { try { if ('wakeLock' in navigator) S.wake = await navigator.wakeLock.request('screen'); } catch (e) { S.wake = null; } }
@@ -734,7 +961,8 @@ function renderStart() {
   $('#rest').hidden = !rest; $('#playBtn').hidden = rest; $('#meta').hidden = rest;
   if (rest) { const d = Learn.day(); $('#restText').textContent = U().restText(d.games, Math.max(1, Math.round(d.ms / 60000))); }
   setMood(K.start, rest ? 'sleep' : 'idle');
-  if (!$('#screen-start').hidden) { setWorld(rest ? 'night' : 'sky'); setTint('#FFE6B3'); }
+  Rig.look(K.start, rest ? null : $('#playBtn'));
+  if (!$('#screen-start').hidden) { setWorld(rest ? 'night' : 'home'); setTint('#FFE6B3'); }
   updateVoiceUI();
 }
 $('#langs').addEventListener('click', e => { const b = e.target.closest('button[data-lang]'); if (b) applyLang(b.dataset.lang); });
@@ -774,9 +1002,9 @@ function renderProgressPane() {
   const d = Learn.day(), w = Learn.week(), min = ms => Math.round(ms / 60000);
   $('#stats').innerHTML = `<div class="stat"><small>${esc(U().today)}</small><b>${esc(U().minN(min(d.ms)))}</b><span>${esc(U().gamesN(d.games))}</span></div><div class="stat"><small>${esc(U().week)}</small><b>${esc(U().minN(min(w.ms)))}</b><span>${esc(U().gamesN(w.g))}</span></div>`;
   $('#wordsPane').innerHTML = CATS.map(c => `<div class="wgroup"><h4>${esc(U().cat[c.id])}</h4>${c.items.map(i0 => {
-    const it = Object.assign({ cat: c.id }, i0), w = itemWord(LANG, it), st = Learn.status(LANG, it.id);
+    const it = withCat(c, i0), w = itemWord(LANG, it), st = Learn.status(LANG, it.id);
     const others = LANG_ORDER.filter(l => l !== LANG).map(l => itemWord(l, it).label).join(' · ');
-    return `<div class="wrow"><svg viewBox="0 0 100 100" aria-hidden="true" style="color:${w.color || SYM_COLOR[w.sym] || ''}"><use href="#${w.sym}"/></svg><div><div class="w1">${esc(w.label)}</div><div class="w2">${esc(others)}</div></div><span class="st ${st}">${esc(U().status[st])}</span></div>`;
+    return `<div class="wrow"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#${w.sym}"/></svg><div><div class="w1">${esc(w.label)}</div><div class="w2">${esc(others)}</div></div><span class="st ${st}">${esc(U().status[st])}</span></div>`;
   }).join('')}</div>`).join('');
 }
 function renderVoicePane() {
@@ -795,6 +1023,7 @@ function renderSettingsPane() {
   $('#lenSel').innerHTML = `<option value="short">${esc(U().lengthShort)}</option><option value="long">${esc(U().lengthLong)}</option>`; $('#lenSel').value = SET.length;
   $('#levelSel').innerHTML = `<option value="auto">${esc(U().levelAuto)}</option><option value="easy">${esc(U().levelEasy)}</option><option value="hard">${esc(U().levelHard)}</option>`; $('#levelSel').value = SET.level;
   $('#limitSel').innerHTML = [0, 1, 2, 3].map(n => `<option value="${n}">${esc(n ? U().limitN(n) : U().limitOff)}</option>`).join(''); $('#limitSel').value = String(SET.limit);
+  $('#sfxSel').innerHTML = `<option value="on">${esc(U().sfxOn)}</option><option value="off">${esc(U().sfxOff)}</option>`; $('#sfxSel').value = SET.sfx === false ? 'off' : 'on';
 }
 function renderSheet() {
   applyText();
@@ -818,6 +1047,7 @@ $('#langSel').addEventListener('change', e => applyLang(e.target.value));
 $('#lenSel').addEventListener('change', e => { SET.length = e.target.value; saveSet(); });
 $('#levelSel').addEventListener('change', e => { SET.level = e.target.value; saveSet(); });
 $('#limitSel').addEventListener('change', e => { SET.limit = Number(e.target.value) || 0; saveSet(); });
+$('#sfxSel').addEventListener('change', e => { SET.sfx = e.target.value !== 'off'; saveSet(); if (SET.sfx) { AE.unlock(); sfx('bike'); } });
 $('#testVoice').addEventListener('click', () => { stopAll(); AE.unlock(); primeTTS(); say('greet', greetText(), { koko: K.start, bubble: document.createElement('div'), plain: SAY[LANG].greet }); });
 let resetArmed = 0;
 $('#resetBtn').addEventListener('click', () => {
@@ -844,7 +1074,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 applyLang(LANG, false);
-setWorld(resting() ? 'night' : 'sky');
+setWorld(resting() ? 'night' : 'home');
 initVoices();
 renderProgress();
 loadRecordings();
@@ -853,4 +1083,4 @@ if (!EMBED && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 
-window.__koko = { markup: kokoMarkup, S, SET, Learn, K, PACK, AE, show, setMood, applyLang, lineList, planSession, voiceScore, get lang() { return LANG; } };
+window.__koko = { markup: kokoMarkup, WORLDS, S, SET, Learn, K, PACK, AE, SFX, Rig, show, setMood, setAct, setWorld, applyLang, lineList, planSession, voiceScore, get lang() { return LANG; } };
